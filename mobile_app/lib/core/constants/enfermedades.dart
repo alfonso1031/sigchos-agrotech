@@ -61,14 +61,6 @@ const Map<String, InfoEnfermedad> catalogoEnfermedades = {
     sintomas:
         'Hojas amarillentas de forma general o entre las nervaduras; a veces mosaico o deformación.',
   ),
-  'dano_plaga': InfoEnfermedad(
-    'dano_plaga',
-    'Daño por plaga',
-    'Diabrotica sp.',
-    descripcion:
-        'Daño mecánico causado por insectos que se alimentan de la hoja. Reduce el área foliar y abre puertas a infecciones.',
-    sintomas: 'Perforaciones, hojas comidas por los bordes y presencia de insectos.',
-  ),
 };
 
 InfoEnfermedad infoDe(String claseId) =>

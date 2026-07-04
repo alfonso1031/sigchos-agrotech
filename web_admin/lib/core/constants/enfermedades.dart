@@ -4,7 +4,6 @@ const Map<String, String> nombreEnfermedad = {
   'mildiu': 'Mildiú',
   'oidio': 'Oídio',
   'amarillamiento': 'Amarillamiento',
-  'dano_plaga': 'Daño por plaga',
 };
 
 String nombreDe(String claseId) => nombreEnfermedad[claseId] ?? claseId;

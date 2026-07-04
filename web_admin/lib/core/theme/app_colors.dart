@@ -29,7 +29,6 @@ class AppColors {
 
   static const Color mildiu = Color(0xFFB5562F);
   static const Color amarillamiento = Color(0xFFC9A227);
-  static const Color plaga = Color(0xFFA8743B);
 
   static Color colorEnfermedad(String claseId) {
     switch (claseId) {
@@ -43,8 +42,6 @@ class AppColors {
         return severidadMedia;
       case 'amarillamiento':
         return amarillamiento;
-      case 'dano_plaga':
-        return plaga;
       default:
         return textoDeshabilitado;
     }

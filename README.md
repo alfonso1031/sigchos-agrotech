@@ -229,9 +229,15 @@ El clasificador se entrenó por transferencia de aprendizaje sobre
 (Kaggle, 2000 imágenes, 5 clases).
 
 Clases cubiertas por el modelo: `hoja_sana`, `mancha_foliar`, `mildiu`,
-`oidio`, `amarillamiento`. La clase `dano_plaga` está en el catálogo y en las
-recomendaciones de la app, pero **sin modelo entrenado** (no existe dataset
-público adecuado) — queda como mejora pendiente.
+`oidio`, `amarillamiento`. La clase `dano_plaga` se quitó del catálogo, los
+colores y las recomendaciones de la app y del panel web — no existe dataset
+público adecuado para entrenarla; se retomará cuando se consiga uno propio.
+
+Métricas reales sobre el set de validación (400 imágenes,
+`classification_report` — ver notebook celda 20): **83% accuracy**, **83%
+recall macro**. Por clase, precisión más floja en `mancha_foliar` (66%,
+confundida con mildiu/oídio) y recall más flojo en `oidio` (72%). Detalle en
+el panel web, sección "Modelo IA".
 
 `TFLiteService` (`mobile_app/lib/services/tflite_service.dart`) carga
 `assets/ml/model.tflite`; si el asset no existe o falla la carga, cae a un
@@ -271,11 +277,12 @@ autenticados y escritura restringida a administradores.
 - El **emulador de Android Studio** resultó inestable en el equipo de
   desarrollo; las pruebas se hicieron en dispositivo físico vía USB
   debugging.
-- El modelo de IA no cubre la clase `dano_plaga` (ver arriba).
+- El modelo de IA no cubre la clase `dano_plaga`; se quitó de la app (ver arriba).
 
 ## Mejoras pendientes
 
-- Entrenar la clase `dano_plaga` con dataset propio.
+- Conseguir dataset propio de `dano_plaga` y reincorporar la clase.
+- Sumar más datos de `mancha_foliar` (precisión más baja, 66%, confundida con mildiu/oídio).
 - Publicar en Play Store (cuenta en proceso de verificación).
 - CRUD de recomendaciones y alertas desde el panel web.
 - Poblar activamente las colecciones `clima`/`alertas` para notificaciones

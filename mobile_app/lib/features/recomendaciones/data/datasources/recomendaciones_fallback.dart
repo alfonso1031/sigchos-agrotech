@@ -28,12 +28,6 @@ final Map<String, List<RecomendacionEntity>> recomendacionesFallback = {
     const RecomendacionEntity(id: 'f3', enfermedad: 'amarillamiento', orden: 3, titulo: 'Controla vectores', descripcion: 'Maneja mosca blanca y áfidos si hay sospecha de virus.'),
     const RecomendacionEntity(id: 'f4', enfermedad: 'amarillamiento', orden: 4, titulo: 'Elimina plantas virosas', descripcion: 'Retira las plantas con síntomas severos.'),
   ],
-  'dano_plaga': [
-    const RecomendacionEntity(id: 'f1', enfermedad: 'dano_plaga', orden: 1, titulo: 'Identifica la plaga', descripcion: 'Revisa el haz y el envés en busca de insectos.'),
-    const RecomendacionEntity(id: 'f2', enfermedad: 'dano_plaga', orden: 2, titulo: 'Control biológico', descripcion: 'Favorece enemigos naturales cuando sea posible.'),
-    const RecomendacionEntity(id: 'f3', enfermedad: 'dano_plaga', orden: 3, titulo: 'Insecticida selectivo', descripcion: 'Aplica solo si supera el umbral de daño económico.'),
-    const RecomendacionEntity(id: 'f4', enfermedad: 'dano_plaga', orden: 4, titulo: 'Trampas cromáticas', descripcion: 'Coloca trampas amarillas para monitorear adultos.'),
-  ],
   'hoja_sana': [
     const RecomendacionEntity(id: 'f1', enfermedad: 'hoja_sana', orden: 1, titulo: 'Mantén el monitoreo', descripcion: 'Revisa las hojas cada 3–4 días para detección temprana.'),
     const RecomendacionEntity(id: 'f2', enfermedad: 'hoja_sana', orden: 2, titulo: 'Riega al pie', descripcion: 'Conserva el follaje seco para prevenir hongos.'),

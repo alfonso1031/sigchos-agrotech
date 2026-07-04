@@ -3,18 +3,35 @@ import '../../core/constants/enfermedades.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
 
-/// Métricas del modelo TFLite. No existe (todavía) un pipeline de
-/// entrenamiento/evaluación conectado a Firestore, así que estos valores son
-/// de referencia — reemplazar por datos reales cuando se entrene el modelo
-/// definitivo (ver PLAN.md sección 8).
+/// Métricas reales de `classification_report` sobre el set de validación
+/// (400 imágenes), obtenidas en el notebook de entrenamiento — ver
+/// `mobile_app/tool/entrenar_modelo_colab.ipynb` celda 20.
+const _accuracyGlobal = 0.83;
+const _recallMacro = 0.83;
+
 const _precisionPorClase = {
-  'hoja_sana': 0.96,
-  'mancha_foliar': 0.93,
-  'mildiu': 0.90,
-  'oidio': 0.88,
-  'amarillamiento': 0.84,
-  'dano_plaga': 0.89,
+  'amarillamiento': 0.95,
+  'hoja_sana': 0.86,
+  'mancha_foliar': 0.66,
+  'mildiu': 0.81,
+  'oidio': 0.96,
 };
+
+const _recallPorClase = {
+  'amarillamiento': 0.85,
+  'hoja_sana': 0.84,
+  'mancha_foliar': 0.86,
+  'mildiu': 0.88,
+  'oidio': 0.72,
+};
+
+const _clasesModelo = [
+  'hoja_sana',
+  'mancha_foliar',
+  'mildiu',
+  'oidio',
+  'amarillamiento',
+];
 
 class ModeloIaView extends StatelessWidget {
   const ModeloIaView({super.key});
@@ -25,13 +42,13 @@ class ModeloIaView extends StatelessWidget {
       children: [
         Row(
           children: [
-            Expanded(child: _metric('Precisión (accuracy)', '92.4%')),
+            Expanded(child: _metric('Precisión (accuracy)', '${(_accuracyGlobal * 100).round()}%')),
             const SizedBox(width: 16),
-            Expanded(child: _metric('Recall medio', '89.1%')),
+            Expanded(child: _metric('Recall medio', '${(_recallMacro * 100).round()}%')),
             const SizedBox(width: 16),
-            Expanded(child: _metric('Latencia media', '1.4s')),
+            Expanded(child: _metric('Clases entrenadas', '${_clasesModelo.length} de 6')),
             const SizedBox(width: 16),
-            Expanded(child: _metric('Tamaño modelo', '4.8MB')),
+            Expanded(child: _metric('Tamaño modelo', '2.4 MB')),
           ],
         ),
         const SizedBox(height: 16),
@@ -45,10 +62,15 @@ class ModeloIaView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Precisión por clase',
+                      Text('Precisión y recall por clase',
                           style: AppTheme.display(fontSize: 16, fontWeight: FontWeight.w600)),
-                      const SizedBox(height: 18),
-                      for (final claseId in nombreEnfermedad.keys)
+                      const SizedBox(height: 4),
+                      Text(
+                        'Validación: 400 imágenes (classification_report, Colab).',
+                        style: AppTheme.body(fontSize: 12, color: AppColors.textoSecundario),
+                      ),
+                      const SizedBox(height: 14),
+                      for (final claseId in _clasesModelo)
                         Padding(
                           padding: const EdgeInsets.only(bottom: 15),
                           child: Column(
@@ -71,15 +93,18 @@ class ModeloIaView extends StatelessWidget {
                                       Text(nombreDe(claseId), style: AppTheme.body(fontSize: 13)),
                                     ],
                                   ),
-                                  Text('${((_precisionPorClase[claseId] ?? 0) * 100).round()}%',
-                                      style: AppTheme.mono(fontSize: 12)),
+                                  Text(
+                                    'precisión ${((_precisionPorClase[claseId] ?? 0) * 100).round()}% '
+                                    '· recall ${((_recallPorClase[claseId] ?? 0) * 100).round()}%',
+                                    style: AppTheme.mono(fontSize: 12),
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 6),
                               ClipRRect(
                                 borderRadius: BorderRadius.circular(4),
                                 child: LinearProgressIndicator(
-                                  value: _precisionPorClase[claseId] ?? 0,
+                                  value: _recallPorClase[claseId] ?? 0,
                                   minHeight: 7,
                                   backgroundColor: AppColors.divider,
                                   valueColor:
@@ -89,6 +114,24 @@ class ModeloIaView extends StatelessWidget {
                             ],
                           ),
                         ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 4),
+                        child: Row(
+                          children: [
+                            Container(
+                              width: 9,
+                              height: 9,
+                              decoration: BoxDecoration(
+                                color: AppColors.textoDeshabilitado,
+                                borderRadius: BorderRadius.circular(3),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Text('Daño por plaga (sin dataset — no soportada aún)',
+                                style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
+                          ],
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -107,9 +150,9 @@ class ModeloIaView extends StatelessWidget {
                           Text('Estado del despliegue',
                               style: AppTheme.display(fontSize: 16, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 14),
-                          _fila('Versión', 'TFLite v1.0'),
-                          _fila('Dataset', 'Teachable Machine'),
-                          _fila('Entrenamiento', 'Pendiente de modelo real'),
+                          _fila('Arquitectura', 'MobileNetV2 (transfer learning)'),
+                          _fila('Dataset', 'Pumpkin Leaf Diseases (Kaggle, Bangladesh)'),
+                          _fila('Entrenamiento', 'Google Colab'),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -117,12 +160,12 @@ class ModeloIaView extends StatelessWidget {
                               Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                                 decoration: BoxDecoration(
-                                  color: AppColors.severidadMediaBg,
+                                  color: AppColors.sanoBg,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
-                                child: Text('En simulación',
+                                child: Text('Modelo entrenado',
                                     style: AppTheme.body(
-                                        fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.severidadMedia)),
+                                        fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.sano)),
                               ),
                             ],
                           ),
@@ -138,12 +181,14 @@ class ModeloIaView extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Modelo pendiente de entrenar',
+                          Text('Pendiente',
                               style: AppTheme.display(
                                   fontSize: 16, fontWeight: FontWeight.w600, color: Colors.white)),
                           const SizedBox(height: 8),
                           Text(
-                            'El clasificador funciona en modo simulado. Entrena el modelo con Teachable Machine y reemplaza assets/ml/model.tflite en la app móvil (ver PLAN.md sección 8).',
+                            'Falta clase "daño por plaga" (sin dataset público adecuado). '
+                            'Precisión más baja en mancha foliar (66%) — confundida con mildiu '
+                            'y oídio en la matriz de confusión, candidata a más datos.',
                             style: AppTheme.body(fontSize: 13, color: Colors.white.withValues(alpha: 0.75)),
                           ),
                         ],

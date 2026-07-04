@@ -10,11 +10,15 @@ class ClasificacionHoja {
   const ClasificacionHoja(this.claseId, this.probabilidad);
 }
 
-/// Ejecuta el modelo TensorFlow Lite entrenado en Teachable Machine
-/// (ver PLAN.md sección 8) sobre una foto de hoja de zapallo.
+/// Ejecuta el modelo TensorFlow Lite entrenado por transferencia de
+/// aprendizaje sobre MobileNetV2 (Google Colab, ver
+/// `mobile_app/tool/entrenar_modelo_colab.ipynb`) con el dataset público
+/// Pumpkin Leaf Diseases Dataset From Bangladesh (Kaggle, 5 clases).
 ///
-/// El asset `assets/ml/model.tflite` incluido en el repo es un PLACEHOLDER.
-/// Mientras no se reemplace por el modelo real exportado, el servicio cae en
+/// `dano_plaga` no está cubierta por este modelo (el dataset no la incluye);
+/// se mantiene en el catálogo/recomendaciones como mejora pendiente, ver README.
+///
+/// Si `assets/ml/model.tflite` no existe o falla la carga, el servicio cae en
 /// un modo de simulación para que el flujo de la app siga siendo demostrable.
 class TFLiteService {
   static const int inputSize = 224;
@@ -24,7 +28,6 @@ class TFLiteService {
     'mildiu',
     'oidio',
     'amarillamiento',
-    'dano_plaga',
   ];
 
   Interpreter? _interpreter;
@@ -38,7 +41,7 @@ class TFLiteService {
       _labels = raw.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
       modeloCargado = true;
     } catch (_) {
-      // Placeholder sin modelo real entrenado todavía: se usa el modo simulado.
+      // Asset ausente o corrupto: cae a modo simulado para no romper el flujo.
       modeloCargado = false;
     }
   }
