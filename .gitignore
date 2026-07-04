@@ -38,5 +38,6 @@ mobile_app/emulator_log.txt
 *.apk
 *.aab
 
-# Claves reales (usar api_keys.dart.example como plantilla)
+# Claves reales (usar los .example como plantilla)
 mobile_app/lib/core/constants/api_keys.dart
+mobile_app/android/secrets.properties

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'app.dart';
 import 'firebase_options.dart';
+import 'services/notification_service.dart';
 import 'services/storage_service.dart';
 import 'services/tflite_service.dart';
 
@@ -71,6 +72,9 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDateFormatting('es');
+
+  final notificationService = NotificationService();
+  await notificationService.inicializar();
 
   // --- Composición manual de dependencias (Clean Architecture) ---
   // Auth
@@ -141,6 +145,7 @@ Future<void> main() async {
             crearCultivoUseCase: CrearCultivoUseCase(cultivoRepository),
             obtenerCultivosPorUsuarioUseCase:
                 ObtenerCultivosPorUsuarioUseCase(cultivoRepository),
+            notificationService: notificationService,
           ),
         ),
         ChangeNotifierProvider(
@@ -148,6 +153,7 @@ Future<void> main() async {
             clasificarHojaUseCase: ClasificarHojaUseCase(diagnosticoRepository),
             crearDiagnosticoUseCase:
                 CrearDiagnosticoUseCase(diagnosticoRepository),
+            notificationService: notificationService,
           ),
         ),
         ChangeNotifierProvider(
@@ -165,6 +171,7 @@ Future<void> main() async {
           create: (_) => ClimaViewModel(
             obtenerClimaActualUseCase: ObtenerClimaActualUseCase(climaRepository),
             obtenerPronosticoUseCase: ObtenerPronosticoUseCase(climaRepository),
+            notificationService: notificationService,
           ),
         ),
         ChangeNotifierProvider(

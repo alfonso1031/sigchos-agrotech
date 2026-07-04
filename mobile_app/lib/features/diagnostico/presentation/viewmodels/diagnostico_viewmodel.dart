@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:image_picker/image_picker.dart';
+import '../../../../core/constants/enfermedades.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../services/notification_service.dart';
 import '../../domain/entities/clima_snapshot.dart';
 import '../../domain/entities/diagnostico_entity.dart';
 import '../../domain/usecases/clasificar_hoja_usecase.dart';
@@ -17,14 +19,17 @@ class DiagnosticoViewModel extends ChangeNotifier {
   final ClasificarHojaUseCase _clasificarHojaUseCase;
   final CrearDiagnosticoUseCase _crearDiagnosticoUseCase;
   final ImagePicker _picker;
+  final NotificationService? _notificationService;
 
   DiagnosticoViewModel({
     required ClasificarHojaUseCase clasificarHojaUseCase,
     required CrearDiagnosticoUseCase crearDiagnosticoUseCase,
     ImagePicker? picker,
+    NotificationService? notificationService,
   })  : _clasificarHojaUseCase = clasificarHojaUseCase,
         _crearDiagnosticoUseCase = crearDiagnosticoUseCase,
-        _picker = picker ?? ImagePicker();
+        _picker = picker ?? ImagePicker(),
+        _notificationService = notificationService;
 
   DiagnosticoEstado estado = DiagnosticoEstado.esperandoFoto;
   File? imagen;
@@ -94,6 +99,12 @@ class DiagnosticoViewModel extends ChangeNotifier {
         imagen: imagen!,
       );
       estado = DiagnosticoEstado.listo;
+      if (ganadora.claseId != 'hoja_sana') {
+        await _notificationService?.resultadoDiagnostico(
+          enfermedad: infoDe(ganadora.claseId).nombre,
+          confianzaPorcentaje: (ganadora.probabilidad * 100).round(),
+        );
+      }
       return true;
     } on Failure catch (f) {
       errorMessage = f.message;

@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration
@@ -6,6 +8,12 @@ plugins {
     id("kotlin-android")
     // The Flutter Gradle Plugin must be applied after the Android and Kotlin Gradle plugins.
     id("dev.flutter.flutter-gradle-plugin")
+}
+
+// Claves que no se versionan (ver android/secrets.properties.example).
+val secretsProperties = Properties().apply {
+    val file = rootProject.file("secrets.properties")
+    if (file.exists()) load(file.inputStream())
 }
 
 android {
@@ -32,6 +40,9 @@ android {
         targetSdk = flutter.targetSdkVersion
         versionCode = flutter.versionCode
         versionName = flutter.versionName
+
+        manifestPlaceholders["MAPS_API_KEY"] =
+            secretsProperties.getProperty("MAPS_API_KEY", "")
     }
 
     buildTypes {
