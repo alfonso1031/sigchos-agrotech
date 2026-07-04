@@ -1,0 +1,8 @@
+/// Claves de APIs externas. Copia este archivo como `api_keys.dart` (mismo
+/// directorio) y reemplaza con tus claves reales antes de compilar.
+/// Ver PLAN.md sección 9 (OpenWeather) y sección 10 (Google Maps).
+class ApiKeys {
+  ApiKeys._();
+
+  static const String openWeatherApiKey = 'TU_OPENWEATHER_API_KEY_AQUI';
+}

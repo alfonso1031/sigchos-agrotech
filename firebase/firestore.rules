@@ -1,0 +1,59 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function esDueno(datos) {
+      return request.auth != null && datos.usuarioId == request.auth.uid;
+    }
+
+    match /usuarios/{uid} {
+      allow read: if request.auth != null && (request.auth.uid == uid || esAdmin());
+      allow write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    match /fincas/{doc} {
+      allow read: if esDueno(resource.data) || esAdmin();
+      allow create: if esDueno(request.resource.data);
+      allow update, delete: if esDueno(resource.data);
+    }
+
+    match /parcelas/{doc} {
+      allow read: if esDueno(resource.data) || esAdmin();
+      allow create: if esDueno(request.resource.data);
+      allow update, delete: if esDueno(resource.data);
+    }
+
+    match /cultivos/{doc} {
+      allow read: if esDueno(resource.data) || esAdmin();
+      allow create: if esDueno(request.resource.data);
+      allow update, delete: if esDueno(resource.data);
+    }
+
+    match /diagnosticos_hojas/{doc} {
+      allow read: if esDueno(resource.data) || esAdmin();
+      allow create: if esDueno(request.resource.data);
+      allow update, delete: if esDueno(resource.data);
+    }
+
+    match /alertas/{doc} {
+      allow read: if esDueno(resource.data) || esAdmin();
+      allow create: if esDueno(request.resource.data) || esAdmin();
+      allow update, delete: if esDueno(resource.data) || esAdmin();
+    }
+
+    match /recomendaciones/{doc} {
+      allow read: if request.auth != null;
+      allow write: if esAdmin();
+    }
+
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false; // Se gestiona manualmente desde la consola Firebase.
+    }
+  }
+}
