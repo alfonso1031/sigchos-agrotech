@@ -75,10 +75,15 @@ class TFLiteService {
         inputSize,
         (y) => List.generate(inputSize, (x) {
           final pixel = redimensionada.getPixel(x, y);
+          // El modelo TFLite ya incluye `preprocess_input` de MobileNetV2 como
+          // capa interna (ver notebook, celda "Construir el modelo"). Por eso
+          // aquí se pasan los píxeles CRUDOS [0,255]; normalizarlos también acá
+          // aplicaría la transformación dos veces y produciría basura (todo
+          // caía en `no_hoja`).
           return [
-            (pixel.r - 127.5) / 127.5,
-            (pixel.g - 127.5) / 127.5,
-            (pixel.b - 127.5) / 127.5,
+            pixel.r.toDouble(),
+            pixel.g.toDouble(),
+            pixel.b.toDouble(),
           ];
         }),
       ),

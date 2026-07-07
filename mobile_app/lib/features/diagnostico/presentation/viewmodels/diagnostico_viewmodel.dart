@@ -11,16 +11,13 @@ import '../../domain/usecases/crear_diagnostico_usecase.dart';
 
 enum DiagnosticoEstado { esperandoFoto, analizando, listo }
 
-/// Confianza mínima del top-1 para aceptar un diagnóstico. El modelo es un
-/// softmax cerrado de 5 clases: cualquier foto (incluso una que no sea hoja) se
-/// fuerza a una clase. Si ni la clase ganadora supera este umbral, tratamos la
-/// imagen como no válida ("no parece una hoja") en vez de mostrar un resultado
-/// engañoso. Ajustable según la matriz de confusión del modelo.
-const double _umbralConfianzaMinima = 0.60;
-
-/// Margen mínimo entre top-1 y top-2. Si el modelo duda entre dos clases (fotos
-/// fuera de dominio suelen repartir la probabilidad), también se rechaza.
-const double _margenMinimoTop1Top2 = 0.15;
+/// Rechazo de imágenes no-hoja. El modelo v2 tiene una clase entrenada
+/// `no_hoja` (objetos, fondos, hojas de otras plantas), así que el rechazo
+/// principal lo hace el propio modelo: si la clase ganadora es `no_hoja`, se
+/// rechaza. Este umbral es solo un piso de seguridad para descartar
+/// predicciones con confianza muy baja; se deja bajo para no rechazar hojas de
+/// zapallo reales (fotos de celular dan menos confianza que el dataset).
+const double _umbralConfianzaMinima = 0.50;
 
 /// ViewModel del flujo Captura -> Analizando -> Resultado (pantallas centrales
 /// del prototipo). Orquesta cámara, TFLite y persistencia en Firestore.
@@ -91,17 +88,17 @@ class DiagnosticoViewModel extends ChangeNotifier {
       final ganadora = probabilidades.first;
       final otras = probabilidades.skip(1).take(3).toList();
 
-      // Rechazo de imágenes fuera de dominio (no-hoja / demasiado ambiguas):
-      // el softmax cerrado nunca dice "no es hoja", así que lo inferimos por
-      // baja confianza o poca separación entre las dos clases más probables.
-      final margen = probabilidades.length > 1
-          ? ganadora.probabilidad - probabilidades[1].probabilidad
-          : ganadora.probabilidad;
+      // Log de diagnóstico: muestra qué predijo el modelo y con qué confianza.
+      debugPrint('[Diagnostico] top: ${probabilidades.take(3).map(
+            (p) => '${p.claseId}=${p.probabilidad.toStringAsFixed(2)}',
+          ).join(', ')}');
+
+      // Rechazo de imágenes no-hoja: lo decide sobre todo la clase entrenada
+      // `no_hoja`. El umbral solo descarta predicciones de confianza ínfima.
       if (ganadora.claseId == 'no_hoja' ||
-          ganadora.probabilidad < _umbralConfianzaMinima ||
-          margen < _margenMinimoTop1Top2) {
+          ganadora.probabilidad < _umbralConfianzaMinima) {
         errorMessage =
-            'La imagen no parece una hoja o no se ve con claridad. '
+            'La imagen no parece una hoja de zapallo o no se ve con claridad. '
             'Acerca la cámara a una sola hoja, con buena luz y fondo simple.';
         estado = DiagnosticoEstado.esperandoFoto;
         return false;

@@ -111,18 +111,25 @@ class _ClimaViewState extends State<ClimaView> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Row(
-                          children: [
-                            const Icon(Icons.location_on,
-                                color: Colors.white70, size: 16),
-                            const SizedBox(width: 4),
-                            Text(actual.ciudad,
-                                style: AppTheme.bodyFont(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w500,
-                                    color: Colors.white)),
-                          ],
+                        Expanded(
+                          child: Row(
+                            children: [
+                              const Icon(Icons.location_on,
+                                  color: Colors.white70, size: 16),
+                              const SizedBox(width: 4),
+                              Flexible(
+                                child: Text(actual.ciudad,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTheme.bodyFont(
+                                        fontSize: 15,
+                                        fontWeight: FontWeight.w500,
+                                        color: Colors.white)),
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(width: 8),
                         Text('Hoy',
                             style: AppTheme.bodyFont(
                                 fontSize: 13,
@@ -137,11 +144,16 @@ class _ClimaViewState extends State<ClimaView> {
                         Icon(_iconoClima(actual.descripcion),
                             color: Colors.white, size: 68),
                         const SizedBox(width: 12),
-                        Text('${actual.temperatura.round()}°',
-                            style: AppTheme.displayFont(
-                                fontSize: 72,
-                                fontWeight: FontWeight.w700,
-                                color: Colors.white)),
+                        Flexible(
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text('${actual.temperatura.round()}°',
+                                style: AppTheme.displayFont(
+                                    fontSize: 72,
+                                    fontWeight: FontWeight.w700,
+                                    color: Colors.white)),
+                          ),
+                        ),
                       ],
                     ),
                     Text(actual.descripcion,
@@ -266,19 +278,23 @@ class _ClimaViewState extends State<ClimaView> {
                             const SizedBox(width: 14),
                             SizedBox(
                               width: 88,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.end,
-                                children: [
-                                  Text('${vm.pronostico[i].tempMax.round()}°',
-                                      style: AppTheme.monoFont(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.textoPrimario)),
-                                  Text('  /  ${vm.pronostico[i].tempMin.round()}°',
-                                      style: AppTheme.monoFont(
-                                          fontSize: 14,
-                                          color: AppColors.textoDeshabilitado)),
-                                ],
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerRight,
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('${vm.pronostico[i].tempMax.round()}°',
+                                        style: AppTheme.monoFont(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w600,
+                                            color: AppColors.textoPrimario)),
+                                    Text('  /  ${vm.pronostico[i].tempMin.round()}°',
+                                        style: AppTheme.monoFont(
+                                            fontSize: 14,
+                                            color: AppColors.textoDeshabilitado)),
+                                  ],
+                                ),
                               ),
                             ),
                           ],

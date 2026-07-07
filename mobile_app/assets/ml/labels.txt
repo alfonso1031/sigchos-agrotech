@@ -2,4 +2,5 @@ amarillamiento
 hoja_sana
 mancha_foliar
 mildiu
+no_hoja
 oidio
