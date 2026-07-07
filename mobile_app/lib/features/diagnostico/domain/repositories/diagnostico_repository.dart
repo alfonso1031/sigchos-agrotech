@@ -11,4 +11,6 @@ abstract class DiagnosticoRepository {
   });
 
   Stream<List<DiagnosticoEntity>> obtenerHistorial(String usuarioId);
+
+  Future<void> eliminarDiagnostico(DiagnosticoEntity diagnostico);
 }

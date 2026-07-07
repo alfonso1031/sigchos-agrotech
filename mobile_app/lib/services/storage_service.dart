@@ -16,6 +16,17 @@ class StorageService {
     return task.ref.getDownloadURL();
   }
 
+  /// Borra una imagen a partir de su URL de descarga. Tolerante a fallo:
+  /// si la URL es vacía o el objeto ya no existe, no lanza.
+  Future<void> borrarPorUrl(String url) async {
+    if (url.isEmpty) return;
+    try {
+      await _storage.refFromURL(url).delete();
+    } catch (_) {
+      // objeto inexistente o Storage no disponible — no bloquea el borrado
+    }
+  }
+
   /// Sube/reemplaza la foto de perfil (siempre el mismo path, sobrescribe).
   Future<String> subirFotoPerfil(File imagen, String usuarioId) async {
     final ref = _storage.ref().child('perfiles/$usuarioId/avatar.jpg');

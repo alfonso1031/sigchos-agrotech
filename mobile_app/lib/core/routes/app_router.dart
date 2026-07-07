@@ -3,7 +3,6 @@ import '../../features/auth/presentation/views/editar_perfil_view.dart';
 import '../../features/auth/presentation/views/login_view.dart';
 import '../../features/auth/presentation/views/profile_view.dart';
 import '../../features/auth/presentation/views/register_view.dart';
-import '../../features/auth/presentation/views/splash_view.dart';
 import '../../features/clima/presentation/views/clima_view.dart';
 import '../../features/cultivos/presentation/views/registrar_cultivo_view.dart';
 import '../../features/diagnostico/domain/entities/diagnostico_entity.dart';
@@ -25,8 +24,6 @@ class AppRouter {
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     switch (settings.name) {
-      case AppRoutes.splash:
-        return _page(const SplashView());
       case AppRoutes.login:
         return _page(const LoginView());
       case AppRoutes.registro:

@@ -1,9 +1,11 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_native_splash/flutter_native_splash.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 
 import 'app.dart';
+import 'core/routes/app_routes.dart';
 import 'firebase_options.dart';
 import 'services/notification_service.dart';
 import 'services/storage_service.dart';
@@ -46,6 +48,7 @@ import 'features/diagnostico/data/datasources/diagnostico_firestore_datasource.d
 import 'features/diagnostico/data/repositories/diagnostico_repository_impl.dart';
 import 'features/diagnostico/domain/usecases/clasificar_hoja_usecase.dart';
 import 'features/diagnostico/domain/usecases/crear_diagnostico_usecase.dart';
+import 'features/diagnostico/domain/usecases/eliminar_diagnostico_usecase.dart';
 import 'features/diagnostico/domain/usecases/obtener_historial_usecase.dart';
 import 'features/diagnostico/presentation/viewmodels/diagnostico_viewmodel.dart';
 
@@ -69,7 +72,11 @@ import 'features/clima/presentation/viewmodels/clima_viewmodel.dart';
 import 'features/mapa/presentation/viewmodels/mapa_viewmodel.dart';
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+  final widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  // Mantiene el splash NATIVO en pantalla (verde, a pantalla completa) hasta
+  // que la app dibuje su primer frame real. Así se evita el splash de Flutter,
+  // que renderizaba con métricas de ventana incompletas dejando una franja.
+  FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   await initializeDateFormatting('es');
 
@@ -79,6 +86,19 @@ Future<void> main() async {
   // --- Composición manual de dependencias (Clean Architecture) ---
   // Auth
   final authRepository = AuthRepositoryImpl(AuthFirebaseDataSource());
+  final authViewModel = AuthViewModel(
+    loginUseCase: LoginUseCase(authRepository),
+    loginGoogleUseCase: LoginGoogleUseCase(authRepository),
+    registerUseCase: RegisterUseCase(authRepository),
+    logoutUseCase: LogoutUseCase(authRepository),
+    obtenerUsuarioActualUseCase: ObtenerUsuarioActualUseCase(authRepository),
+    actualizarPerfilUseCase: ActualizarPerfilUseCase(authRepository),
+  );
+  // Resuelve la sesión activa mientras sigue visible el splash nativo, para
+  // saltar directo a Inicio o Login sin una pantalla de carga intermedia.
+  final usuarioInicial = await authViewModel.authStateChangesFuture();
+  final rutaInicial =
+      usuarioInicial != null ? AppRoutes.inicio : AppRoutes.login;
 
   // Fincas
   final fincaRepository = FincaRepositoryImpl(FincaFirestoreDataSource());
@@ -99,6 +119,8 @@ Future<void> main() async {
     storageService: StorageService(),
   );
   final obtenerHistorialUseCase = ObtenerHistorialUseCase(diagnosticoRepository);
+  final eliminarDiagnosticoUseCase =
+      EliminarDiagnosticoUseCase(diagnosticoRepository);
 
   // Recomendaciones
   final recomendacionRepository =
@@ -110,18 +132,7 @@ Future<void> main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(
-          create: (_) => AuthViewModel(
-            loginUseCase: LoginUseCase(authRepository),
-            loginGoogleUseCase: LoginGoogleUseCase(authRepository),
-            registerUseCase: RegisterUseCase(authRepository),
-            logoutUseCase: LogoutUseCase(authRepository),
-            obtenerUsuarioActualUseCase:
-                ObtenerUsuarioActualUseCase(authRepository),
-            actualizarPerfilUseCase:
-                ActualizarPerfilUseCase(authRepository),
-          ),
-        ),
+        ChangeNotifierProvider.value(value: authViewModel),
         ChangeNotifierProvider(
           create: (_) => FincaViewModel(
             crearFincaUseCase: CrearFincaUseCase(fincaRepository),
@@ -165,6 +176,7 @@ Future<void> main() async {
         ChangeNotifierProvider(
           create: (_) => HistorialViewModel(
             obtenerHistorialUseCase: obtenerHistorialUseCase,
+            eliminarDiagnosticoUseCase: eliminarDiagnosticoUseCase,
           ),
         ),
         ChangeNotifierProvider(
@@ -181,7 +193,7 @@ Future<void> main() async {
           ),
         ),
       ],
-      child: const SigchosApp(),
+      child: SigchosApp(rutaInicial: rutaInicial),
     ),
   );
 }

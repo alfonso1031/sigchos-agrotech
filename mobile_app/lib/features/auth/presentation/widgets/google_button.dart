@@ -6,7 +6,12 @@ import '../../../../core/theme/app_theme.dart';
 /// aproximada mediante un degradado (evita depender de un asset externo).
 class GoogleButton extends StatelessWidget {
   final VoidCallback? onPressed;
-  const GoogleButton({super.key, required this.onPressed});
+  final String label;
+  const GoogleButton({
+    super.key,
+    required this.onPressed,
+    this.label = 'Continuar con Google',
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -26,7 +31,7 @@ class GoogleButton extends StatelessWidget {
             const _GoogleG(size: 22),
             const SizedBox(width: 12),
             Text(
-              'Continuar con Google',
+              label,
               style: AppTheme.displayFont(
                 fontSize: 15,
                 fontWeight: FontWeight.w600,

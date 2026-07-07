@@ -9,6 +9,7 @@ import '../../../../core/widgets/main_tab_bar.dart';
 import '../../../clima/presentation/viewmodels/clima_viewmodel.dart';
 import '../../../fincas/presentation/viewmodels/finca_viewmodel.dart';
 import '../../../historial/presentation/viewmodels/historial_viewmodel.dart';
+import '../../../auth/domain/entities/usuario_entity.dart';
 import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
 
 /// Pantalla "Inicio" — home/dashboard del agricultor (sección isInicio del
@@ -41,6 +42,34 @@ class _InicioViewState extends State<InicioView> {
     if (hora < 19) return 'Buenas tardes,';
     return 'Buenas noches,';
   }
+
+  Widget _avatar(UsuarioEntity? usuario) {
+    const size = 44.0;
+    final url = usuario?.fotoUrl;
+    if (url != null && url.isNotEmpty) {
+      return CircleAvatar(radius: size / 2, backgroundImage: NetworkImage(url));
+    }
+    final iniciales = (usuario?.nombre ?? '')
+        .split(' ')
+        .where((s) => s.isNotEmpty)
+        .take(2)
+        .map((s) => s[0].toUpperCase())
+        .join();
+    return CircleAvatar(
+      radius: size / 2,
+      backgroundColor: AppColors.naranja,
+      child: Text(iniciales.isEmpty ? '?' : iniciales,
+          style: AppTheme.displayFont(
+              fontSize: 16, fontWeight: FontWeight.w700, color: Colors.white)),
+    );
+  }
+
+  Widget _thumbIcono(String enfermedad) => Container(
+        color: AppColors.fondoEnfermedad(enfermedad),
+        alignment: Alignment.center,
+        child: Icon(Icons.eco_outlined,
+            color: AppColors.colorEnfermedad(enfermedad)),
+      );
 
   @override
   Widget build(BuildContext context) {
@@ -78,17 +107,27 @@ class _InicioViewState extends State<InicioView> {
                         child: InkWell(
                           onTap: () => Navigator.of(context).pushNamed(AppRoutes.perfil),
                           borderRadius: BorderRadius.circular(10),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                          child: Row(
                             children: [
-                              Text(_saludo(),
-                                  style: AppTheme.bodyFont(
-                                      fontSize: 13, color: Colors.white.withValues(alpha: 0.7))),
-                              Text(usuario?.nombre.split(' ').take(2).join(' ') ?? '',
-                                  style: AppTheme.displayFont(
-                                      fontSize: 22,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white)),
+                              _avatar(usuario),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(_saludo(),
+                                        style: AppTheme.bodyFont(
+                                            fontSize: 13,
+                                            color: Colors.white.withValues(alpha: 0.7))),
+                                    Text(
+                                        usuario?.nombre.split(' ').take(2).join(' ') ?? '',
+                                        style: AppTheme.displayFont(
+                                            fontSize: 22,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.white)),
+                                  ],
+                                ),
+                              ),
                             ],
                           ),
                         ),
@@ -303,16 +342,25 @@ class _InicioViewState extends State<InicioView> {
                           ),
                           child: Row(
                             children: [
-                              Container(
-                                width: 48,
-                                height: 48,
-                                decoration: BoxDecoration(
-                                  color: AppColors.fondoEnfermedad(d.enfermedad),
-                                  borderRadius: BorderRadius.circular(11),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(11),
+                                child: SizedBox(
+                                  width: 48,
+                                  height: 48,
+                                  child: d.imagenUrl.isNotEmpty
+                                      ? Image.network(
+                                          d.imagenUrl,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder:
+                                              (context, child, progress) =>
+                                                  progress == null
+                                                      ? child
+                                                      : _thumbIcono(d.enfermedad),
+                                          errorBuilder: (_, _, _) =>
+                                              _thumbIcono(d.enfermedad),
+                                        )
+                                      : _thumbIcono(d.enfermedad),
                                 ),
-                                alignment: Alignment.center,
-                                child: Icon(Icons.eco_outlined,
-                                    color: AppColors.colorEnfermedad(d.enfermedad)),
                               ),
                               const SizedBox(width: 13),
                               Expanded(

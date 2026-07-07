@@ -63,7 +63,7 @@ class _EditarPerfilViewState extends State<EditarPerfilView> {
     );
     if (ok && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Perfil actualizado')),
+        SnackBar(content: Text(vm.avisoFoto ?? 'Perfil actualizado')),
       );
       Navigator.of(context).pop();
     } else if (mounted && vm.errorMessage != null) {

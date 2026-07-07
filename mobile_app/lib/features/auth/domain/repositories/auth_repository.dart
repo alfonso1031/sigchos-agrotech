@@ -21,7 +21,9 @@ abstract class AuthRepository {
 
   /// Actualiza los datos del agricultor. [nuevaFotoPath] (ruta local) es
   /// opcional; si se pasa, se sube a Storage y se guarda su URL.
-  Future<UsuarioEntity> actualizarPerfil({
+  /// Devuelve el usuario actualizado y [fotoFallo] = true si la foto no se
+  /// pudo subir (el resto de datos sí se guardó).
+  Future<({UsuarioEntity usuario, bool fotoFallo})> actualizarPerfil({
     required String uid,
     required String nombre,
     required String cedula,

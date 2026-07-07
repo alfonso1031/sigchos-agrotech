@@ -7,6 +7,7 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/main_tab_bar.dart';
 import '../../../auth/presentation/viewmodels/auth_viewmodel.dart';
+import '../../../diagnostico/domain/entities/diagnostico_entity.dart';
 import '../viewmodels/historial_viewmodel.dart';
 
 class HistorialView extends StatefulWidget {
@@ -90,14 +91,31 @@ class _HistorialViewState extends State<HistorialView> {
                             final d = vm.diagnosticos[i];
                             final info = infoDe(d.enfermedad);
                             final color = AppColors.colorEnfermedad(d.enfermedad);
-                            return InkWell(
-                              onTap: () => Navigator.of(context).pushNamed(
-                                AppRoutes.diagnostico,
-                                arguments: d,
-                              ),
-                              borderRadius: BorderRadius.circular(16),
-                              child: Container(
+                            return Dismissible(
+                              key: ValueKey(d.id),
+                              direction: DismissDirection.endToStart,
+                              confirmDismiss: (_) =>
+                                  _confirmarEliminar(context, info.nombre),
+                              onDismissed: (_) => _eliminar(context, vm, d),
+                              background: Container(
                                 margin: const EdgeInsets.only(bottom: 10),
+                                padding: const EdgeInsets.only(right: 22),
+                                alignment: Alignment.centerRight,
+                                decoration: BoxDecoration(
+                                  color: AppColors.severidadAlta,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: const Icon(Icons.delete_outline,
+                                    color: Colors.white),
+                              ),
+                              child: InkWell(
+                                onTap: () => Navigator.of(context).pushNamed(
+                                  AppRoutes.diagnostico,
+                                  arguments: d,
+                                ),
+                                borderRadius: BorderRadius.circular(16),
+                                child: Container(
+                                  margin: const EdgeInsets.only(bottom: 10),
                                 padding: const EdgeInsets.all(13),
                                 decoration: BoxDecoration(
                                   color: AppColors.card,
@@ -106,16 +124,25 @@ class _HistorialViewState extends State<HistorialView> {
                                 ),
                                 child: Row(
                                   children: [
-                                    Container(
-                                      width: 50,
-                                      height: 50,
-                                      decoration: BoxDecoration(
-                                        color: AppColors.inputFill,
-                                        borderRadius: BorderRadius.circular(12),
+                                    ClipRRect(
+                                      borderRadius: BorderRadius.circular(12),
+                                      child: SizedBox(
+                                        width: 50,
+                                        height: 50,
+                                        child: d.imagenUrl.isNotEmpty
+                                            ? Image.network(
+                                                d.imagenUrl,
+                                                fit: BoxFit.cover,
+                                                loadingBuilder:
+                                                    (context, child, progress) =>
+                                                        progress == null
+                                                            ? child
+                                                            : _thumbPlaceholder(),
+                                                errorBuilder: (_, _, _) =>
+                                                    _thumbPlaceholder(),
+                                              )
+                                            : _thumbPlaceholder(),
                                       ),
-                                      alignment: Alignment.center,
-                                      child: Icon(Icons.image_outlined,
-                                          color: AppColors.textoDeshabilitado),
                                     ),
                                     const SizedBox(width: 13),
                                     Expanded(
@@ -155,6 +182,7 @@ class _HistorialViewState extends State<HistorialView> {
                                     ),
                                   ],
                                 ),
+                                ),
                               ),
                             );
                           },
@@ -164,6 +192,53 @@ class _HistorialViewState extends State<HistorialView> {
         ),
       ),
     );
+  }
+
+  Widget _thumbPlaceholder() => Container(
+        color: AppColors.inputFill,
+        alignment: Alignment.center,
+        child: Icon(Icons.image_outlined, color: AppColors.textoDeshabilitado),
+      );
+
+  Future<bool> _confirmarEliminar(BuildContext context, String nombre) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Eliminar diagnóstico'),
+        content: Text(
+            '¿Eliminar el diagnóstico de "$nombre"? Esta acción no se puede deshacer.'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Cancelar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.severidadAlta),
+            child: const Text('Eliminar'),
+          ),
+        ],
+      ),
+    );
+    return ok ?? false;
+  }
+
+  Future<void> _eliminar(
+    BuildContext context,
+    HistorialViewModel vm,
+    DiagnosticoEntity d,
+  ) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await vm.eliminar(d);
+      messenger.showSnackBar(
+        const SnackBar(content: Text('Diagnóstico eliminado')),
+      );
+    } catch (e) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('No se pudo eliminar: $e')),
+      );
+    }
   }
 }
 

@@ -5,7 +5,7 @@ class ActualizarPerfilUseCase {
   final AuthRepository repository;
   const ActualizarPerfilUseCase(this.repository);
 
-  Future<UsuarioEntity> call({
+  Future<({UsuarioEntity usuario, bool fotoFallo})> call({
     required String uid,
     required String nombre,
     required String cedula,

@@ -58,7 +58,7 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<UsuarioEntity> actualizarPerfil({
+  Future<({UsuarioEntity usuario, bool fotoFallo})> actualizarPerfil({
     required String uid,
     required String nombre,
     required String cedula,
@@ -66,9 +66,10 @@ class AuthRepositoryImpl implements AuthRepository {
     String? nuevaFotoPath,
   }) async {
     try {
-      // La subida de la foto es tolerante a fallo: si Storage no está activo,
-      // se actualizan igual los demás datos sin cambiar la foto.
+      // La subida de la foto es tolerante: si Storage falla, se guardan igual
+      // los demás datos y se avisa vía [fotoFallo] para que la UI lo informe.
       String? fotoUrl;
+      var fotoFallo = false;
       if (nuevaFotoPath != null) {
         try {
           fotoUrl = await storageService.subirFotoPerfil(
@@ -76,16 +77,17 @@ class AuthRepositoryImpl implements AuthRepository {
             uid,
           );
         } catch (_) {
-          fotoUrl = null;
+          fotoFallo = true;
         }
       }
-      return await dataSource.actualizarPerfil(
+      final usuario = await dataSource.actualizarPerfil(
         uid: uid,
         nombre: nombre,
         cedula: cedula,
         telefono: telefono,
         fotoUrl: fotoUrl,
       );
+      return (usuario: usuario, fotoFallo: fotoFallo);
     } on FirebaseException catch (e) {
       throw ServerFailure(e.message ?? 'No se pudo actualizar el perfil.');
     }

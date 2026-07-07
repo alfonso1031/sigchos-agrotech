@@ -6,6 +6,7 @@ import '../../../../core/theme/app_theme.dart';
 import '../../../../core/utils/validators.dart';
 import '../viewmodels/auth_viewmodel.dart';
 import '../widgets/auth_gradient_field.dart';
+import '../widgets/google_button.dart';
 
 /// Pantalla de registro — no estaba prototipada explícitamente en el diseño
 /// (solo el link "Regístrate" en Login), se replica el mismo lenguaje visual
@@ -54,6 +55,36 @@ class _RegisterViewState extends State<RegisterView> {
         SnackBar(content: Text(vm.errorMessage!)),
       );
     }
+  }
+
+  Future<void> _registrarConGoogle() async {
+    final vm = context.read<AuthViewModel>();
+    final ok = await vm.loginConGoogle();
+    if (ok && mounted) {
+      Navigator.of(context).pushReplacementNamed(AppRoutes.inicio);
+    } else if (mounted && vm.errorMessage != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(vm.errorMessage!)),
+      );
+    }
+  }
+
+  Widget _divisorO() {
+    final linea = Expanded(
+      child: Divider(color: Colors.white.withValues(alpha: 0.25), thickness: 1),
+    );
+    return Row(
+      children: [
+        linea,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          child: Text('o',
+              style: AppTheme.bodyFont(
+                  fontSize: 13, color: Colors.white.withValues(alpha: 0.6))),
+        ),
+        linea,
+      ],
+    );
   }
 
   @override
@@ -173,6 +204,13 @@ class _RegisterViewState extends State<RegisterView> {
                               ),
                             ),
                     ),
+                  ),
+                  const SizedBox(height: 18),
+                  _divisorO(),
+                  const SizedBox(height: 18),
+                  GoogleButton(
+                    label: 'Registrarse con Google',
+                    onPressed: vm.isLoading ? null : _registrarConGoogle,
                   ),
                   const SizedBox(height: 30),
                 ],

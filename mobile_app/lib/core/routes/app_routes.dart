@@ -3,7 +3,6 @@
 class AppRoutes {
   AppRoutes._();
 
-  static const String splash = '/';
   static const String login = '/login';
   static const String registro = '/registro';
   static const String inicio = '/inicio';

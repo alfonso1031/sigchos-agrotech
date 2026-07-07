@@ -121,6 +121,9 @@ class AuthViewModel extends ChangeNotifier {
     }
   }
 
+  /// Aviso no crítico tras actualizar (p. ej. la foto no subió pero el resto sí).
+  String? avisoFoto;
+
   Future<bool> actualizarPerfil({
     required String nombre,
     required String cedula,
@@ -130,15 +133,20 @@ class AuthViewModel extends ChangeNotifier {
     if (usuario == null) return false;
     isLoading = true;
     errorMessage = null;
+    avisoFoto = null;
     notifyListeners();
     try {
-      usuario = await _actualizarPerfilUseCase(
+      final res = await _actualizarPerfilUseCase(
         uid: usuario!.uid,
         nombre: nombre,
         cedula: cedula,
         telefono: telefono,
         nuevaFotoPath: nuevaFotoPath,
       );
+      usuario = res.usuario;
+      if (res.fotoFallo) {
+        avisoFoto = 'Datos guardados, pero la foto no se pudo subir.';
+      }
       necesitaCompletarPerfil =
           usuario!.cedula.isEmpty || usuario!.telefono.isEmpty;
       return true;

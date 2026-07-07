@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:image/image.dart' as img;
 import 'package:tflite_flutter/tflite_flutter.dart';
@@ -40,9 +41,13 @@ class TFLiteService {
       final raw = await rootBundle.loadString('assets/ml/labels.txt');
       _labels = raw.split('\n').map((e) => e.trim()).where((e) => e.isNotEmpty).toList();
       modeloCargado = true;
-    } catch (_) {
+      debugPrint('[TFLite] Modelo cargado OK. Labels: $_labels');
+    } catch (e, st) {
       // Asset ausente o corrupto: cae a modo simulado para no romper el flujo.
+      // Log explícito para diagnosticar por qué NO carga el modelo real.
       modeloCargado = false;
+      debugPrint('[TFLite] FALLO al cargar modelo -> modo SIMULADO. Error: $e');
+      debugPrint('[TFLite] StackTrace: $st');
     }
   }
 

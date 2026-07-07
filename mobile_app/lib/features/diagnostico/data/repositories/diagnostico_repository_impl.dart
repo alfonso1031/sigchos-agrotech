@@ -33,16 +33,11 @@ class DiagnosticoRepositoryImpl implements DiagnosticoRepository {
     required DiagnosticoEntity diagnostico,
     required File imagen,
   }) async {
-    // La subida a Storage es tolerante a fallo: si Storage no está habilitado
-    // (plan Blaze) o falla la red, el diagnóstico se guarda igual sin imagen en
-    // la nube. Así el flujo de diagnóstico nunca se rompe por Storage.
-    String urlImagen = '';
-    try {
-      urlImagen =
-          await storageService.subirImagenHoja(imagen, diagnostico.usuarioId);
-    } catch (_) {
-      urlImagen = '';
-    }
+    // La subida a Storage reintenta ante fallos transitorios (red inestable)
+    // con backoff exponencial. Si tras los reintentos sigue fallando, es
+    // tolerante a fallo: el diagnóstico se guarda igual sin imagen en la nube,
+    // así el flujo nunca se rompe por Storage.
+    final urlImagen = await _subirConReintentos(imagen, diagnostico.usuarioId);
 
     try {
       final model = DiagnosticoModel.fromEntity(diagnostico);
@@ -67,6 +62,24 @@ class DiagnosticoRepositoryImpl implements DiagnosticoRepository {
     }
   }
 
+  /// Sube la imagen reintentando ante fallos transitorios. Devuelve la URL o
+  /// cadena vacía si agota los intentos (subida tolerante a fallo).
+  Future<String> _subirConReintentos(
+    File imagen,
+    String usuarioId, {
+    int intentos = 3,
+  }) async {
+    for (var i = 0; i < intentos; i++) {
+      try {
+        return await storageService.subirImagenHoja(imagen, usuarioId);
+      } catch (_) {
+        if (i == intentos - 1) return '';
+        await Future.delayed(Duration(milliseconds: 800 * (1 << i)));
+      }
+    }
+    return '';
+  }
+
   String? _mensajeFirestore(String code) {
     switch (code) {
       case 'permission-denied':
@@ -81,5 +94,18 @@ class DiagnosticoRepositoryImpl implements DiagnosticoRepository {
   @override
   Stream<List<DiagnosticoEntity>> obtenerHistorial(String usuarioId) {
     return dataSource.obtenerHistorial(usuarioId);
+  }
+
+  @override
+  Future<void> eliminarDiagnostico(DiagnosticoEntity diagnostico) async {
+    try {
+      await dataSource.eliminar(diagnostico.id);
+      // Borra la imagen de Storage tras eliminar el doc (best-effort).
+      await storageService.borrarPorUrl(diagnostico.imagenUrl);
+    } on FirebaseException catch (e) {
+      throw ServerFailure(
+        _mensajeFirestore(e.code) ?? 'No se pudo eliminar el diagnóstico.',
+      );
+    }
   }
 }

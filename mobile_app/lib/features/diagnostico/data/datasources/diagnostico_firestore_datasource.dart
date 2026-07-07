@@ -15,6 +15,8 @@ class DiagnosticoFirestoreDataSource {
     return DiagnosticoModel.fromMap(doc.id, diagnostico.toMap());
   }
 
+  Future<void> eliminar(String id) => _diagnosticos.doc(id).delete();
+
   Stream<List<DiagnosticoModel>> obtenerHistorial(String usuarioId) {
     return _diagnosticos
         .where('usuarioId', isEqualTo: usuarioId)
