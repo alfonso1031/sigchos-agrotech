@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Eliminar cuenta — Sigchos Agrotech</title>
+<style>
+  :root {
+    --verde-oscuro: #225C3B;
+    --verde-medio: #2E7D4F;
+    --verde-claro: #359659;
+    --naranja: #E08A2B;
+    --fondo: #F4F1E9;
+    --card: #FFFFFF;
+    --card-border: #E7E3D8;
+    --divider: #EFEBE0;
+    --texto: #1B2D22;
+    --texto-sec: #717A70;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background: var(--fondo);
+    color: var(--texto);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+  }
+  .hero {
+    background: linear-gradient(135deg, #225C3B 0%, #2E7D4F 55%, #256340 100%);
+    color: #fff;
+    padding: 56px 24px 48px;
+    text-align: center;
+  }
+  .hero .badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.22);
+    padding: 6px 14px; border-radius: 999px;
+    font-size: 13px; font-weight: 600; letter-spacing: .3px;
+    margin-bottom: 18px;
+  }
+  .hero h1 { font-size: 30px; font-weight: 800; letter-spacing: -.5px; }
+  .hero p { margin-top: 10px; opacity: .9; font-size: 15px; }
+  .wrap { max-width: 760px; margin: -28px auto 64px; padding: 0 20px; }
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: 18px;
+    padding: 32px 30px;
+    box-shadow: 0 10px 30px rgba(34,92,59,0.08);
+  }
+  h2 {
+    font-size: 20px; font-weight: 700; color: var(--verde-oscuro);
+    margin: 34px 0 12px; display: flex; align-items: center; gap: 10px;
+  }
+  h2::before {
+    content: ""; width: 6px; height: 22px;
+    background: var(--naranja); border-radius: 4px; flex: none;
+  }
+  section:first-of-type h2 { margin-top: 4px; }
+  p, li { color: var(--texto); font-size: 15.5px; }
+  p + p { margin-top: 12px; }
+  ol { margin: 12px 0 4px; padding-left: 22px; }
+  ol li { margin-bottom: 10px; }
+  ul { margin: 12px 0 4px; padding-left: 4px; list-style: none; }
+  ul li { position: relative; padding-left: 24px; margin-bottom: 9px; }
+  ul li::before {
+    content: ""; position: absolute; left: 4px; top: 10px;
+    width: 8px; height: 8px; background: var(--verde-claro); border-radius: 50%;
+  }
+  strong { color: var(--verde-oscuro); }
+  .cta {
+    display: inline-block; margin-top: 6px;
+    background: var(--verde-medio); color: #fff;
+    padding: 13px 26px; border-radius: 12px;
+    font-weight: 700; text-decoration: none; font-size: 15.5px;
+    box-shadow: 0 6px 18px rgba(46,125,79,0.28);
+  }
+  .cta:hover { background: var(--verde-oscuro); }
+  .note {
+    margin-top: 22px; background: #FBF3E6;
+    border: 1px solid #F0DCBE; border-radius: 14px;
+    padding: 18px 20px; color: #8A5A12; font-size: 14.5px;
+  }
+  .updated {
+    display: inline-block; margin-top: 14px; font-size: 13px;
+    color: var(--texto-sec); background: #F1EEE5;
+    padding: 5px 12px; border-radius: 8px;
+  }
+  footer { text-align: center; color: var(--texto-sec); font-size: 13px; padding: 0 20px 48px; }
+  footer .dot { color: var(--naranja); }
+  @media (max-width: 520px) { .hero h1 { font-size: 24px; } .card { padding: 26px 20px; } }
+</style>
+</head>
+<body>
+  <div class="hero">
+    <span class="badge">🌱 Sigchos Agrotech</span>
+    <h1>Eliminar tu cuenta</h1>
+    <p>Solicita la eliminación de tu cuenta y tus datos</p>
+  </div>
+
+  <div class="wrap">
+    <div class="card">
+      <section>
+        <h2>Cómo solicitar la eliminación</h2>
+        <p>Si deseas eliminar tu cuenta de Sigchos Agrotech y todos los datos asociados, sigue estos pasos:</p>
+        <ol>
+          <li>Envía un correo a <strong>arroyoalfonso1031@gmail.com</strong> desde la dirección de correo con la que te registraste.</li>
+          <li>Escribe en el asunto: <strong>"Eliminar mi cuenta"</strong>.</li>
+          <li>Incluye en el mensaje el correo de tu cuenta para poder identificarla.</li>
+        </ol>
+        <p style="margin-top:16px;">
+          <a class="cta" href="mailto:arroyoalfonso1031@gmail.com?subject=Eliminar%20mi%20cuenta&body=Solicito%20la%20eliminaci%C3%B3n%20de%20mi%20cuenta%20y%20datos%20asociados.%20Correo%20de%20la%20cuenta%3A%20">✉️ Solicitar eliminación</a>
+        </p>
+        <span class="updated">Última actualización: 7 de julio de 2026</span>
+      </section>
+
+      <section>
+        <h2>Qué datos se eliminan</h2>
+        <ul>
+          <li>Tu perfil de usuario (nombre, correo, cédula, teléfono, foto).</li>
+          <li>Tu historial de diagnósticos de cultivos.</li>
+          <li>Las imágenes que hayas subido a la aplicación.</li>
+          <li>Cualquier preferencia o dato asociado a tu cuenta.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Plazo de eliminación</h2>
+        <p>Procesaremos tu solicitud y eliminaremos tus datos en un plazo máximo de <strong>30 días</strong> desde la recepción del correo. Te confirmaremos por correo cuando el proceso se complete.</p>
+        <div class="note">
+          ⚠️ La eliminación es permanente e irreversible. Una vez borrada tu cuenta, no podrás recuperar tu historial ni tus datos.
+        </div>
+      </section>
+
+      <section>
+        <h2>Contacto</h2>
+        <p>¿Dudas sobre el proceso? Escríbenos a <strong>arroyoalfonso1031@gmail.com</strong>.</p>
+      </section>
+    </div>
+  </div>
+
+  <footer>
+    <p>© 2026 Sigchos Agrotech <span class="dot">•</span> Todos los derechos reservados</p>
+  </footer>
+</body>
+</html>
