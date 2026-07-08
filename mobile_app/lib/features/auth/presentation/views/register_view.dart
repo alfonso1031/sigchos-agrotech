@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -139,6 +140,10 @@ class _RegisterViewState extends State<RegisterView> {
                     label: 'Cédula',
                     controller: _cedulaController,
                     keyboardType: TextInputType.number,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(10),
+                    ],
                     validator: Validators.cedulaEcuatoriana,
                   ),
                   const SizedBox(height: 14),
@@ -146,6 +151,10 @@ class _RegisterViewState extends State<RegisterView> {
                     label: 'Teléfono',
                     controller: _telefonoController,
                     keyboardType: TextInputType.phone,
+                    inputFormatters: [
+                      FilteringTextInputFormatter.digitsOnly,
+                      LengthLimitingTextInputFormatter(10),
+                    ],
                     validator: Validators.telefono,
                   ),
                   const SizedBox(height: 14),
