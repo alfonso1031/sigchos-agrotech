@@ -12,3 +12,12 @@
   - Archivo: `mobile_app/lib/features/auth/presentation/views/register_view.dart`
 - [x] Validar teléfono: solo permitir 10 caracteres (numéricos).
   - Archivo: `mobile_app/lib/features/auth/presentation/views/register_view.dart`
+
+## Mapa / Fincas
+- [ ] Dibujar fincas como polígono (contorno real), no solo un pin.
+  - Guardar `List<LatLng>` (vértices del borde) en `FincaEntity` + Firestore.
+  - UI de dibujo en `registrar_finca_view`: tocar mapa para marcar esquinas.
+  - Pintar con `polygons:` de `GoogleMap` en vez de `Marker`.
+  - Calcular `areaHectareas` desde el polígono en vez de pedirla a mano.
+  - Beneficio: ver extensión real, saber en qué finca cae cada diagnóstico, parcelas como sub-polígonos.
+  - Archivos: `mobile_app/lib/features/fincas/domain/entities/finca_entity.dart`, `.../presentation/views/registrar_finca_view.dart`, `mobile_app/lib/features/mapa/presentation/views/mapa_view.dart`

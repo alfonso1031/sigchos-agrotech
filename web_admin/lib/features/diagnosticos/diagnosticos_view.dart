@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/enfermedades.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_theme.dart';
@@ -42,74 +43,100 @@ class _DiagnosticosViewState extends State<DiagnosticosView> {
             const SizedBox(height: 16),
             _cabecera(),
             const Divider(height: 1, color: AppColors.divider),
-            if (filtrados.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Text('Sin diagnósticos para este filtro',
-                    style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
-              )
-            else
-              for (final r in filtrados)
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  decoration: const BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Color(0xFFF3F0E8))),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        flex: 14,
-                        child: Text(r.agricultor,
-                            style: AppTheme.body(fontSize: 13, fontWeight: FontWeight.w500)),
-                      ),
-                      Expanded(
-                        flex: 10,
-                        child: Text(r.parcela,
-                            style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
-                      ),
-                      Expanded(
-                        flex: 11,
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: AppColors.fondoResultado(r.doc.enfermedad),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Text(nombreDe(r.doc.enfermedad),
-                                style: AppTheme.body(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.colorEnfermedad(r.doc.enfermedad))),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        flex: 9,
-                        child: Text('${(r.doc.confianza * 100).round()}%',
-                            textAlign: TextAlign.right, style: AppTheme.mono(fontSize: 13)),
-                      ),
-                      Expanded(
-                        flex: 10,
-                        child: Text(DateFormat('dd MMM · HH:mm', 'es').format(r.doc.fecha),
-                            style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
-                      ),
-                      Expanded(
-                        flex: 7,
-                        child: Icon(
-                          r.doc.lat != null ? Icons.location_on_outlined : Icons.location_off_outlined,
-                          size: 16,
-                          color: AppColors.textoDeshabilitado,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+            Expanded(
+              child: filtrados.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Text('Sin diagnósticos para este filtro',
+                          style: AppTheme.body(
+                              fontSize: 13, color: AppColors.textoSecundario)),
+                    )
+                  : ListView.builder(
+                      itemCount: filtrados.length,
+                      itemBuilder: (context, i) => _fila(filtrados[i]),
+                    ),
+            ),
           ],
         ),
       ),
     );
+  }
+
+  Widget _fila(DiagnosticoEnriquecido r) {
+    final tieneGps = r.doc.lat != null && r.doc.lng != null;
+    return InkWell(
+      onTap: tieneGps ? () => _abrirMapa(r.doc.lat!, r.doc.lng!) : null,
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 13),
+        decoration: const BoxDecoration(
+          border: Border(bottom: BorderSide(color: Color(0xFFF3F0E8))),
+        ),
+        child: Row(
+          children: [
+            Expanded(
+              flex: 14,
+              child: Text(r.agricultor,
+                  style: AppTheme.body(fontSize: 13, fontWeight: FontWeight.w500)),
+            ),
+            Expanded(
+              flex: 10,
+              child: Text(r.parcela,
+                  style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
+            ),
+            Expanded(
+              flex: 11,
+              child: Align(
+                alignment: Alignment.centerLeft,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.fondoResultado(r.doc.enfermedad),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: Text(nombreDe(r.doc.enfermedad),
+                      style: AppTheme.body(
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.colorEnfermedad(r.doc.enfermedad))),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 9,
+              child: Text('${(r.doc.confianza * 100).round()}%',
+                  textAlign: TextAlign.right, style: AppTheme.mono(fontSize: 13)),
+            ),
+            Expanded(
+              flex: 10,
+              child: Text(DateFormat('dd MMM · HH:mm', 'es').format(r.doc.fecha),
+                  style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
+            ),
+            Expanded(
+              flex: 7,
+              child: tieneGps
+                  ? Tooltip(
+                      message: 'Ver ubicación en Google Maps',
+                      child: Icon(Icons.location_on,
+                          size: 16, color: AppColors.verdeOscuro),
+                    )
+                  : Icon(Icons.location_off_outlined,
+                      size: 16, color: AppColors.textoDeshabilitado),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<void> _abrirMapa(double lat, double lng) async {
+    final uri = Uri.parse(
+        'https://www.google.com/maps/search/?api=1&query=$lat,$lng');
+    if (!await launchUrl(uri, mode: LaunchMode.externalApplication)) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('No se pudo abrir el mapa ($lat, $lng)')),
+      );
+    }
   }
 
   Widget _cabecera() {

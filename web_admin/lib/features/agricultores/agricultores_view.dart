@@ -21,75 +21,83 @@ class AgricultoresView extends StatelessWidget {
           children: [
             _cabecera(),
             const Divider(height: 1, color: AppColors.divider),
-            if (agricultores.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Text('Sin agricultores registrados aún',
-                    style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
-              )
-            else
-              for (final a in agricultores)
-                Container(
-                  padding: const EdgeInsets.symmetric(vertical: 13),
-                  decoration: const BoxDecoration(
-                    border: Border(bottom: BorderSide(color: Color(0xFFF3F0E8))),
+            Expanded(
+              child: agricultores.isEmpty
+                  ? Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 24),
+                      child: Text('Sin agricultores registrados aún',
+                          style: AppTheme.body(
+                              fontSize: 13, color: AppColors.textoSecundario)),
+                    )
+                  : ListView.builder(
+                      itemCount: agricultores.length,
+                      itemBuilder: (context, i) => _fila(agricultores[i]),
+                    ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _fila(AgricultorResumen a) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 13),
+      decoration: const BoxDecoration(
+        border: Border(bottom: BorderSide(color: Color(0xFFF3F0E8))),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 16,
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 16,
+                  backgroundColor: const Color(0xFFF2EFE6),
+                  child: Text(
+                    a.usuario.nombre.isNotEmpty ? a.usuario.nombre[0].toUpperCase() : '?',
+                    style: AppTheme.display(
+                        fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textoSecundario),
                   ),
-                  child: Row(
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        flex: 16,
-                        child: Row(
-                          children: [
-                            CircleAvatar(
-                              radius: 16,
-                              backgroundColor: const Color(0xFFF2EFE6),
-                              child: Text(
-                                a.usuario.nombre.isNotEmpty ? a.usuario.nombre[0].toUpperCase() : '?',
-                                style: AppTheme.display(
-                                    fontSize: 12, fontWeight: FontWeight.w700, color: AppColors.textoSecundario),
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(a.usuario.nombre,
-                                      style: AppTheme.body(fontSize: 13, fontWeight: FontWeight.w600)),
-                                  Text(a.usuario.correo,
-                                      style: AppTheme.body(fontSize: 11, color: AppColors.textoDeshabilitado)),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Expanded(
-                        flex: 13,
-                        child: Text(a.finca, style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
-                      ),
-                      Expanded(
-                        flex: 10,
-                        child: Text('${a.parcelas}', style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
-                      ),
-                      Expanded(
-                        flex: 8,
-                        child: Text('${a.diagnosticos}', textAlign: TextAlign.center, style: AppTheme.mono(fontSize: 13)),
-                      ),
-                      Expanded(
-                        flex: 10,
-                        child: Text(
-                          a.ultimoDiagnostico == null
-                              ? '—'
-                              : DateFormat('dd MMM · HH:mm', 'es').format(a.ultimoDiagnostico!),
-                          style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario),
-                        ),
-                      ),
+                      Text(a.usuario.nombre,
+                          style: AppTheme.body(fontSize: 13, fontWeight: FontWeight.w600)),
+                      Text(a.usuario.correo,
+                          style: AppTheme.body(fontSize: 11, color: AppColors.textoDeshabilitado)),
                     ],
                   ),
                 ),
-          ],
-        ),
+              ],
+            ),
+          ),
+          Expanded(
+            flex: 13,
+            child: Text(a.finca, style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
+          ),
+          Expanded(
+            flex: 10,
+            child: Text('${a.parcelas}', style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario)),
+          ),
+          Expanded(
+            flex: 8,
+            child: Text('${a.diagnosticos}', textAlign: TextAlign.center, style: AppTheme.mono(fontSize: 13)),
+          ),
+          Expanded(
+            flex: 10,
+            child: Text(
+              a.ultimoDiagnostico == null
+                  ? '—'
+                  : DateFormat('dd MMM · HH:mm', 'es').format(a.ultimoDiagnostico!),
+              style: AppTheme.body(fontSize: 13, color: AppColors.textoSecundario),
+            ),
+          ),
+        ],
       ),
     );
   }
