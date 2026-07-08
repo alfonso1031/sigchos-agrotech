@@ -1,8 +1,13 @@
+import 'dart:math' as math;
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:provider/provider.dart';
 import '../../../../core/constants/enfermedades.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_theme.dart';
 import '../../../../core/widgets/main_tab_bar.dart';
@@ -17,12 +22,21 @@ class MapaView extends StatefulWidget {
   State<MapaView> createState() => _MapaViewState();
 }
 
-enum _FiltroMapa { todos, conDano, sinDano }
+enum _FiltroMapa { todos, conDano, sinDano, soloFinca }
+
+/// Centro del cantón Sigchos: se usa como respaldo cuando no hay ningún punto
+/// que mostrar en el mapa.
+const LatLng _sigchos = LatLng(-0.7166, -78.8833);
 
 class _MapaViewState extends State<MapaView> {
   Position? _miPosicion;
   GoogleMapController? _mapController;
   _FiltroMapa _filtro = _FiltroMapa.todos;
+
+  // Marcadores actualmente pintados y firma de sus posiciones, para reajustar
+  // la cámara solo cuando el conjunto de puntos cambia (datos nuevos o filtro).
+  Set<Marker> _markersActuales = {};
+  String? _firmaFit;
 
   @override
   void initState() {
@@ -65,6 +79,57 @@ class _MapaViewState extends State<MapaView> {
     );
   }
 
+  /// Encuadra la cámara para que se vean todos los puntos (fincas +
+  /// diagnósticos). Si no hay ninguno, centra en Sigchos. Con un solo punto
+  /// (o varios casi coincidentes) hace zoom directo para no acercar de más.
+  Future<void> _ajustarCamara(Set<Marker> markers) async {
+    final controller = _mapController;
+    if (controller == null) return;
+    final puntos = markers.map((m) => m.position).toList();
+
+    if (puntos.isEmpty) {
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          const CameraPosition(target: _sigchos, zoom: 13),
+        ),
+      );
+      return;
+    }
+
+    var minLat = puntos.first.latitude, maxLat = puntos.first.latitude;
+    var minLng = puntos.first.longitude, maxLng = puntos.first.longitude;
+    for (final p in puntos) {
+      minLat = math.min(minLat, p.latitude);
+      maxLat = math.max(maxLat, p.latitude);
+      minLng = math.min(minLng, p.longitude);
+      maxLng = math.max(maxLng, p.longitude);
+    }
+
+    // Un solo punto o puntos casi encimados: bounds degenerado, mejor zoom fijo.
+    const eps = 0.0009; // ~100 m
+    if (maxLat - minLat < eps && maxLng - minLng < eps) {
+      await controller.animateCamera(
+        CameraUpdate.newCameraPosition(
+          CameraPosition(
+            target: LatLng((minLat + maxLat) / 2, (minLng + maxLng) / 2),
+            zoom: 16,
+          ),
+        ),
+      );
+      return;
+    }
+
+    await controller.animateCamera(
+      CameraUpdate.newLatLngBounds(
+        LatLngBounds(
+          southwest: LatLng(minLat, minLng),
+          northeast: LatLng(maxLat, maxLng),
+        ),
+        56, // padding en px para que ningún marcador quede pegado al borde
+      ),
+    );
+  }
+
   Future<void> _irAMiUbicacion() async {
     try {
       final pos = await LocationService().obtenerPosicionActual();
@@ -92,6 +157,8 @@ class _MapaViewState extends State<MapaView> {
           return d.enfermedad != 'hoja_sana';
         case _FiltroMapa.sinDano:
           return d.enfermedad == 'hoja_sana';
+        case _FiltroMapa.soloFinca:
+          return false; // Solo fincas: se ocultan los diagnósticos.
         case _FiltroMapa.todos:
           return true;
       }
@@ -117,11 +184,28 @@ class _MapaViewState extends State<MapaView> {
         ),
     };
 
+    _markersActuales = markers;
+
+    // Reajusta el encuadre solo cuando cambian los puntos (llegan datos o se
+    // cambia de filtro), no en cada rebuild.
+    final firma = (markers.map((m) =>
+            '${m.position.latitude.toStringAsFixed(6)},${m.position.longitude.toStringAsFixed(6)}')
+        .toList()
+      ..sort())
+        .join('|');
+    if (firma != _firmaFit) {
+      _firmaFit = firma;
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _ajustarCamara(markers));
+    }
+
+    // Punto inicial mientras el mapa se crea; el encuadre real lo hace
+    // _ajustarCamara en cuanto el controlador está listo.
     final centro = vm.fincas.isNotEmpty
         ? LatLng(vm.fincas.first.lat, vm.fincas.first.lng)
         : _miPosicion != null
             ? LatLng(_miPosicion!.latitude, _miPosicion!.longitude)
-            : const LatLng(-0.7166, -78.8833); // Sigchos, Cotopaxi
+            : _sigchos;
 
     // Lista de la parte inferior: respeta el filtro.
     final listaInferior = [...visibles]
@@ -161,6 +245,8 @@ class _MapaViewState extends State<MapaView> {
                         _chipFiltro('Con daño', _FiltroMapa.conDano),
                         const SizedBox(width: 8),
                         _chipFiltro('Sin daño', _FiltroMapa.sinDano),
+                        const SizedBox(width: 8),
+                        _chipFiltro('Solo finca', _FiltroMapa.soloFinca),
                       ],
                     ),
                   ),
@@ -175,11 +261,22 @@ class _MapaViewState extends State<MapaView> {
                             initialCameraPosition:
                                 CameraPosition(target: centro, zoom: 13),
                             markers: markers,
+                            // El mapa vive dentro de un ListView; sin esto el
+                            // scroll se traga los gestos de zoom/arrastre.
+                            gestureRecognizers: {
+                              Factory<OneSequenceGestureRecognizer>(
+                                  () => EagerGestureRecognizer()),
+                            },
                             mapType: MapType.hybrid,
                             myLocationEnabled: _miPosicion != null,
                             myLocationButtonEnabled: false,
                             zoomControlsEnabled: false,
-                            onMapCreated: (c) => _mapController = c,
+                            onMapCreated: (c) {
+                              _mapController = c;
+                              // El mapa ya tiene tamaño: encuadra los puntos.
+                              WidgetsBinding.instance.addPostFrameCallback(
+                                  (_) => _ajustarCamara(_markersActuales));
+                            },
                           ),
                           // Botón mi ubicación
                           Positioned(
@@ -211,6 +308,8 @@ class _MapaViewState extends State<MapaView> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
+                                  _leyendaItem(const Color(0xFF00A6FF), 'Ubicación de la finca'),
+                                  const SizedBox(height: 5),
                                   _leyendaItem(AppColors.severidadAlta, 'Severidad alta'),
                                   const SizedBox(height: 5),
                                   _leyendaItem(AppColors.severidadMedia, 'Severidad media'),
@@ -289,6 +388,10 @@ class _MapaViewState extends State<MapaView> {
                     for (final d in listaInferior.take(10))
                       InkWell(
                         onTap: () => _irA(LatLng(d.lat!, d.lng!)),
+                        onLongPress: () => Navigator.of(context).pushNamed(
+                          AppRoutes.diagnostico,
+                          arguments: d,
+                        ),
                         borderRadius: BorderRadius.circular(16),
                         child: Container(
                           margin: const EdgeInsets.only(bottom: 10),
@@ -300,16 +403,25 @@ class _MapaViewState extends State<MapaView> {
                           ),
                           child: Row(
                             children: [
-                              Container(
-                                width: 42,
-                                height: 42,
-                                decoration: BoxDecoration(
-                                  color: AppColors.fondoEnfermedad(d.enfermedad),
-                                  borderRadius: BorderRadius.circular(12),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: SizedBox(
+                                  width: 42,
+                                  height: 42,
+                                  child: d.imagenUrl.isNotEmpty
+                                      ? Image.network(
+                                          d.imagenUrl,
+                                          fit: BoxFit.cover,
+                                          loadingBuilder:
+                                              (context, child, progress) =>
+                                                  progress == null
+                                                      ? child
+                                                      : _thumbHoja(d.enfermedad),
+                                          errorBuilder: (_, _, _) =>
+                                              _thumbHoja(d.enfermedad),
+                                        )
+                                      : _thumbHoja(d.enfermedad),
                                 ),
-                                child: Icon(Icons.eco,
-                                    color: AppColors.colorEnfermedad(d.enfermedad),
-                                    size: 22),
                               ),
                               const SizedBox(width: 12),
                               Expanded(
@@ -321,7 +433,7 @@ class _MapaViewState extends State<MapaView> {
                                             fontSize: 14,
                                             fontWeight: FontWeight.w600)),
                                     Text(
-                                      '${(d.confianza * 100).round()}% confianza · toca para ver en el mapa',
+                                      '${(d.confianza * 100).round()}% confianza · toca para ver en el mapa · mantén presionado para el diagnóstico',
                                       style: AppTheme.bodyFont(
                                           fontSize: 12,
                                           color: AppColors.textoSecundario),
@@ -372,12 +484,16 @@ class _MapaViewState extends State<MapaView> {
             border: Border.all(
                 color: activo ? AppColors.verdeOscuro : AppColors.cardBorder),
           ),
-          child: Text(label,
-              style: AppTheme.bodyFont(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: activo ? Colors.white : AppColors.textoSecundario,
-              )),
+          child: FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(label,
+                maxLines: 1,
+                style: AppTheme.bodyFont(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: activo ? Colors.white : AppColors.textoSecundario,
+                )),
+          ),
         ),
       ),
     );
@@ -402,6 +518,17 @@ class _MapaViewState extends State<MapaView> {
         ),
         child: Icon(icono, color: AppColors.verdeMedio, size: 20),
       ),
+    );
+  }
+
+  /// Respaldo cuando la foto de la hoja no está disponible: caja con el color
+  /// de la enfermedad y un ícono de hoja.
+  Widget _thumbHoja(String enfermedad) {
+    return Container(
+      color: AppColors.fondoEnfermedad(enfermedad),
+      alignment: Alignment.center,
+      child: Icon(Icons.eco,
+          color: AppColors.colorEnfermedad(enfermedad), size: 22),
     );
   }
 

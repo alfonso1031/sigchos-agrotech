@@ -31,7 +31,14 @@ class ProfileView extends StatelessWidget {
               padding: const EdgeInsets.fromLTRB(20, 16, 20, 12),
               child: Row(
                 children: [
-                  AppBackButton(onPressed: () => Navigator.of(context).pop()),
+                  AppBackButton(onPressed: () {
+                    final nav = Navigator.of(context);
+                    if (nav.canPop()) {
+                      nav.pop();
+                    } else {
+                      nav.pushReplacementNamed(AppRoutes.inicio);
+                    }
+                  }),
                   const SizedBox(width: 14),
                   Text('Perfil',
                       style: AppTheme.displayFont(
