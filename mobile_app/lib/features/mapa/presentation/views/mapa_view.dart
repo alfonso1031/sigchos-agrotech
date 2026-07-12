@@ -164,13 +164,30 @@ class _MapaViewState extends State<MapaView> {
       }
     }).toList();
 
+    // Contorno de cada finca que tenga polígono dibujado.
+    final polygons = <Polygon>{
+      for (final f in vm.fincas)
+        if (f.tienePoligono)
+          Polygon(
+            polygonId: PolygonId('finca_${f.id}'),
+            points: [for (final p in f.limite) LatLng(p.lat, p.lng)],
+            strokeColor: const Color(0xFF00A6FF),
+            strokeWidth: 2,
+            fillColor: const Color(0xFF00A6FF).withValues(alpha: 0.18),
+          ),
+    };
+
     final markers = <Marker>{
       for (final f in vm.fincas)
         Marker(
           markerId: MarkerId('finca_${f.id}'),
           position: LatLng(f.lat, f.lng),
           icon: BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueAzure),
-          infoWindow: InfoWindow(title: f.nombre, snippet: 'Finca'),
+          infoWindow: InfoWindow(
+              title: f.nombre,
+              snippet: f.tienePoligono
+                  ? 'Finca · ${f.areaHectareas.toStringAsFixed(2)} ha'
+                  : 'Finca'),
         ),
       for (final d in visibles)
         Marker(
@@ -261,6 +278,7 @@ class _MapaViewState extends State<MapaView> {
                             initialCameraPosition:
                                 CameraPosition(target: centro, zoom: 13),
                             markers: markers,
+                            polygons: polygons,
                             // El mapa vive dentro de un ListView; sin esto el
                             // scroll se traga los gestos de zoom/arrastre.
                             gestureRecognizers: {

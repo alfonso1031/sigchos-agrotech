@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import '../../../../core/models/geo_punto.dart';
 import '../../domain/entities/finca_entity.dart';
 
 class FincaModel extends FincaEntity {
@@ -11,10 +12,12 @@ class FincaModel extends FincaEntity {
     required super.direccion,
     required super.areaHectareas,
     required super.fechaCreacion,
+    super.limite,
   });
 
   factory FincaModel.fromMap(String id, Map<String, dynamic> map) {
     final ubicacion = map['ubicacion'] as GeoPoint?;
+    final limiteRaw = map['limite'] as List<dynamic>?;
     return FincaModel(
       id: id,
       usuarioId: map['usuarioId'] as String? ?? '',
@@ -25,6 +28,12 @@ class FincaModel extends FincaEntity {
       areaHectareas: (map['areaHectareas'] as num?)?.toDouble() ?? 0,
       fechaCreacion:
           (map['fechaCreacion'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      limite: limiteRaw == null
+          ? const []
+          : limiteRaw
+              .whereType<GeoPoint>()
+              .map((g) => GeoPunto(g.latitude, g.longitude))
+              .toList(),
     );
   }
 
@@ -35,6 +44,7 @@ class FincaModel extends FincaEntity {
       'ubicacion': GeoPoint(lat, lng),
       'direccion': direccion,
       'areaHectareas': areaHectareas,
+      'limite': limite.map((p) => GeoPoint(p.lat, p.lng)).toList(),
       'fechaCreacion': Timestamp.fromDate(fechaCreacion),
     };
   }
@@ -48,5 +58,6 @@ class FincaModel extends FincaEntity {
         direccion: e.direccion,
         areaHectareas: e.areaHectareas,
         fechaCreacion: e.fechaCreacion,
+        limite: e.limite,
       );
 }

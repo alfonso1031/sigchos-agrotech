@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'package:flutter/foundation.dart';
 import '../../../../core/errors/failure.dart';
+import '../../../../core/models/geo_punto.dart';
+import '../../../../core/utils/geo_utils.dart';
 import '../../../../services/location_service.dart';
 import '../../domain/entities/finca_entity.dart';
 import '../../domain/usecases/crear_finca_usecase.dart';
@@ -30,6 +32,39 @@ class FincaViewModel extends ChangeNotifier {
   double? gpsLat;
   double? gpsLng;
   StreamSubscription<List<FincaEntity>>? _subscription;
+
+  /// Vértices del contorno que el usuario va tocando en el mapa.
+  final List<GeoPunto> puntosLimite = [];
+
+  bool get tienePoligono => puntosLimite.length >= 3;
+
+  /// Área en hectáreas calculada a partir del polígono dibujado.
+  double get areaCalculada => GeoUtils.areaHectareas(puntosLimite);
+
+  void agregarPunto(double lat, double lng) {
+    puntosLimite.add(GeoPunto(lat, lng));
+    notifyListeners();
+  }
+
+  void deshacerPunto() {
+    if (puntosLimite.isNotEmpty) {
+      puntosLimite.removeLast();
+      notifyListeners();
+    }
+  }
+
+  void limpiarLimite() {
+    puntosLimite.clear();
+    notifyListeners();
+  }
+
+  /// Precarga el contorno de una finca existente (modo edición).
+  void cargarLimite(List<GeoPunto> puntos) {
+    puntosLimite
+      ..clear()
+      ..addAll(puntos);
+    notifyListeners();
+  }
 
   Future<void> capturarGps() async {
     isCapturandoGps = true;
@@ -70,7 +105,9 @@ class FincaViewModel extends ChangeNotifier {
     required double areaHectareas,
     required String direccion,
   }) async {
-    if (gpsLat == null || gpsLng == null) {
+    // Con polígono dibujado la ubicación es su centro; sin él se usa el GPS.
+    final centro = GeoUtils.centroide(puntosLimite);
+    if (centro == null && (gpsLat == null || gpsLng == null)) {
       await capturarGps();
       if (gpsLat == null) return false;
     }
@@ -82,11 +119,12 @@ class FincaViewModel extends ChangeNotifier {
         id: '',
         usuarioId: usuarioId,
         nombre: nombre,
-        lat: gpsLat!,
-        lng: gpsLng!,
+        lat: centro?.lat ?? gpsLat!,
+        lng: centro?.lng ?? gpsLng!,
         direccion: direccion,
-        areaHectareas: areaHectareas,
+        areaHectareas: tienePoligono ? areaCalculada : areaHectareas,
         fechaCreacion: DateTime.now(),
+        limite: List.of(puntosLimite),
       ));
       return true;
     } on Failure catch (f) {
@@ -114,15 +152,21 @@ class FincaViewModel extends ChangeNotifier {
     errorMessage = null;
     notifyListeners();
     try {
+      // El polígono editado manda: su centro fija la ubicación y su forma el
+      // área. Si no hay polígono se respeta la lógica previa de GPS.
+      final centro = GeoUtils.centroide(puntosLimite);
       await _actualizarFincaUseCase(FincaEntity(
         id: original.id,
         usuarioId: original.usuarioId,
         nombre: nombre,
-        lat: nuevaUbicacion && gpsLat != null ? gpsLat! : original.lat,
-        lng: nuevaUbicacion && gpsLng != null ? gpsLng! : original.lng,
+        lat: centro?.lat ??
+            (nuevaUbicacion && gpsLat != null ? gpsLat! : original.lat),
+        lng: centro?.lng ??
+            (nuevaUbicacion && gpsLng != null ? gpsLng! : original.lng),
         direccion: direccion,
-        areaHectareas: areaHectareas,
+        areaHectareas: tienePoligono ? areaCalculada : areaHectareas,
         fechaCreacion: original.fechaCreacion,
+        limite: List.of(puntosLimite),
       ));
       return true;
     } on Failure catch (f) {

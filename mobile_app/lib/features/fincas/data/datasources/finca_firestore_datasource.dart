@@ -21,6 +21,7 @@ class FincaFirestoreDataSource {
       'ubicacion': GeoPoint(finca.lat, finca.lng),
       'direccion': finca.direccion,
       'areaHectareas': finca.areaHectareas,
+      'limite': finca.limite.map((p) => GeoPoint(p.lat, p.lng)).toList(),
     });
   }
 

@@ -14,10 +14,10 @@
   - Archivo: `mobile_app/lib/features/auth/presentation/views/register_view.dart`
 
 ## Mapa / Fincas
-- [ ] Dibujar fincas como polígono (contorno real), no solo un pin.
-  - Guardar `List<LatLng>` (vértices del borde) en `FincaEntity` + Firestore.
-  - UI de dibujo en `registrar_finca_view`: tocar mapa para marcar esquinas.
-  - Pintar con `polygons:` de `GoogleMap` en vez de `Marker`.
-  - Calcular `areaHectareas` desde el polígono en vez de pedirla a mano.
-  - Beneficio: ver extensión real, saber en qué finca cae cada diagnóstico, parcelas como sub-polígonos.
-  - Archivos: `mobile_app/lib/features/fincas/domain/entities/finca_entity.dart`, `.../presentation/views/registrar_finca_view.dart`, `mobile_app/lib/features/mapa/presentation/views/mapa_view.dart`
+- [x] Dibujar fincas como polígono (contorno real), no solo un pin.
+  - Vértices del borde guardados en `FincaEntity.limite` (`List<GeoPunto>`) y en Firestore como `List<GeoPoint>`.
+  - `registrar_finca_view`: mapa interactivo, tocar para marcar esquinas, botones Deshacer/Limpiar y "mi ubicación".
+  - Área calculada automáticamente del polígono (fórmula esférica en `GeoUtils.areaHectareas`); centro = centroide.
+  - `mapa_view` pinta el contorno con `polygons:`; el pin queda como respaldo/etiqueta.
+  - Compatibilidad: fincas antiguas sin `limite` siguen mostrando solo el pin y área manual.
+  - Archivos nuevos: `core/models/geo_punto.dart`, `core/utils/geo_utils.dart`.
