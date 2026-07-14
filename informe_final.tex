@@ -1,0 +1,2535 @@
+% ============================================================
+%  INFORME FINAL -- PROYECTO FINAL
+%  Sigchos Agrotech: Deteccion de Enfermedades en Hojas de Zapallo
+%  Desarrollo de Aplicaciones Moviles
+% ------------------------------------------------------------
+%  IMAGENES: subir a Overleaf una carpeta  img/  con los archivos
+%  listados en la Tabla "Inventario de capturas" (Seccion Anexos).
+%  Las rutas van SIN extension: LaTeX toma .png o .jpg automaticamente.
+% ============================================================
+\documentclass[12pt,a4paper]{article}
+
+% --- Codificacion y lengua --------------------------------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-noindentfirst,es-noquoting]{babel}
+
+% --- Margenes ---------------------------------------------
+\usepackage{geometry}
+\geometry{top=2.5cm, bottom=2.5cm, left=3cm, right=2.5cm}
+
+% --- Tipografia y espaciado -------------------------------
+\usepackage{lmodern}
+\usepackage{microtype}
+\setlength{\emergencystretch}{3em}
+\usepackage{setspace}
+\setstretch{1.5}
+\usepackage{parskip}
+\setlength{\parindent}{0pt}
+
+% --- Graficos ---------------------------------------------
+\usepackage{graphicx}
+\usepackage{float}
+\newfloat{anexofloat}{H}{loax}
+\floatname{anexofloat}{Anexo}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% --- Colores ----------------------------------------------
+\usepackage{xcolor}
+\definecolor{agroverde}{RGB}{34,92,59}
+\definecolor{agronaranja}{RGB}{224,138,43}
+\definecolor{codegray}{rgb}{0.5,0.5,0.5}
+\definecolor{codepurple}{rgb}{0.58,0,0.82}
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+\definecolor{dartblue}{RGB}{84,176,220}
+
+% --- Encabezados/pies -------------------------------------
+\usepackage{fancyhdr}
+\setlength{\headheight}{13.6pt}
+\addtolength{\topmargin}{-1.6pt}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\textcolor{agroverde}{Sigchos Agrotech -- Desarrollo de Aplicaciones Móviles}}
+\fancyhead[R]{\small\textcolor{agroverde}{Informe Final}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\fancypagestyle{portada}{%
+  \fancyhf{}
+  \renewcommand{\headrulewidth}{0pt}
+}
+
+% --- Secciones --------------------------------------------
+\usepackage{titlesec}
+\titleformat{\section}{\large\bfseries\color{agroverde}}{\thesection.}{0.5em}{}[\color{agroverde}\titlerule]
+\titleformat{\subsection}{\normalsize\bfseries\color{agroverde!80}}{\thesubsection}{0.5em}{}
+\titleformat{\subsubsection}{\normalsize\itshape\color{agroverde!70}}{\thesubsubsection}{0.5em}{}
+
+% --- Tabla de contenidos ----------------------------------
+\usepackage{tocloft}
+\renewcommand{\cftsecleader}{\cftdotfill{\cftdotsep}}
+\renewcommand{\cftsubsecleader}{\cftdotfill{\cftdotsep}}
+
+% --- Tablas -----------------------------------------------
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{longtable}
+
+% --- Matematicas ------------------------------------------
+\usepackage{amsmath}
+
+% --- TikZ -------------------------------------------------
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric, shapes.misc, arrows.meta, positioning, calc, fit}
+
+\tikzset{
+  startstop/.style={
+    rounded rectangle, draw=agroverde, fill=agroverde!20,
+    minimum width=3.2cm, minimum height=0.75cm,
+    align=center, font=\small\bfseries
+  },
+  process/.style={
+    rectangle, draw=agroverde, fill=blue!8,
+    minimum width=4.2cm, minimum height=0.75cm,
+    align=center, font=\small
+  },
+  decision/.style={
+    diamond, draw=agronaranja!70!black, fill=agronaranja!15,
+    aspect=3, minimum height=0.75cm,
+    align=center, font=\small
+  },
+  io/.style={
+    trapezium, trapezium left angle=70, trapezium right angle=110,
+    draw=green!50!black, fill=green!12,
+    minimum width=3.6cm, minimum height=0.75cm,
+    align=center, font=\small
+  },
+  capa/.style={
+    rectangle, draw=agroverde, thick, rounded corners,
+    minimum width=9cm, minimum height=1.6cm,
+    align=center, font=\small
+  },
+  arrow/.style={thick, -Stealth, color=agroverde},
+}
+
+% --- Pseudocodigo -----------------------------------------
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\renewcommand{\listalgorithmname}{Índice de Algoritmos}
+\floatname{algorithm}{Algoritmo}
+
+% --- Codigo fuente ----------------------------------------
+\usepackage{listings}
+\lstdefinelanguage{Dart}{
+  keywords={abstract,as,assert,async,await,break,case,catch,class,const,continue,
+    default,deferred,do,dynamic,else,enum,export,extends,extension,external,factory,
+    false,final,finally,for,Function,get,hide,if,implements,import,in,interface,is,
+    library,mixin,new,null,on,operator,part,rethrow,return,set,show,static,super,
+    switch,sync,this,throw,true,try,typedef,var,void,while,with,yield,required},
+  sensitive=true,
+  morecomment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  morestring=[b]",
+  morestring=[b]',
+}
+\lstdefinelanguage{JS}{
+  keywords={rules_version,service,match,allow,if,function,return,request,resource,
+    exists,get,database,read,write,create,update,delete,auth,uid,data,true,false},
+  sensitive=true,
+  morecomment=[l]{//},
+  morestring=[b]',
+}
+\lstdefinestyle{dartStyle}{
+  backgroundcolor=\color{backcolour},
+  commentstyle=\color{codegray}\itshape,
+  keywordstyle=\color{agroverde}\bfseries,
+  numberstyle=\tiny\color{codegray},
+  stringstyle=\color{codepurple},
+  basicstyle=\ttfamily\footnotesize,
+  breaklines=true,
+  captionpos=b,
+  numbers=left,
+  numbersep=5pt,
+  tabsize=2,
+  frame=single,
+  rulecolor=\color{agroverde!40},
+  extendedchars=true,
+  literate=%
+    {á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+    {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+    {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {ü}{{\"u}}1 {¿}{{?`}}1 {¡}{{!`}}1
+    {°}{{\textdegree}}1 {→}{{$\rightarrow$}}1 {²}{{$^2$}}1
+}
+\lstset{style=dartStyle, language=Dart}
+
+% --- Hipervinculos ----------------------------------------
+\usepackage{hyperref}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=agroverde,
+  citecolor=agroverde,
+  urlcolor=dartblue,
+  pdftitle={Sigchos Agrotech - Informe Final},
+}
+
+% ============================================================
+\begin{document}
+% ============================================================
+
+% ============================================================
+%  PORTADA
+% ============================================================
+\thispagestyle{portada}
+\singlespacing
+\setlength{\parskip}{0pt}
+\vspace*{1.0cm}
+\begin{center}
+  {\Large\bfseries\color{agroverde}
+    UNIVERSIDAD -- CARRERA DE INGENIERÍA DE SOFTWARE\\[0.3cm]}
+  {\large\color{agroverde}
+    Asignatura: Desarrollo de Aplicaciones Móviles\\[0.2cm]
+    Proyecto Final\\[0.6cm]}
+  \textcolor{agroverde}{\rule{\linewidth}{1.5pt}}\\[0.5cm]
+
+  \includegraphics[width=3.2cm]{img/logo}\\[0.5cm]
+
+  {\LARGE\bfseries\color{agroverde}
+    Sigchos Agrotech\\[0.25cm]
+    Detección de Enfermedades en Hojas de Zapallo\\
+    mediante Inteligencia Artificial\\[0.35cm]}
+  \textcolor{agroverde}{\rule{\linewidth}{1.5pt}}\\[1.0cm]
+  {\large\bfseries Integrantes:}\\[0.4cm]
+  \begin{tabular}{c}
+    Alfonso Arroyo\\[0.15cm]
+    Pedro Frías\\[0.15cm]
+    Ariel Llumiquinga\\[0.15cm]
+    Germán Cáceres\\
+  \end{tabular}\\[1.5cm]
+  {\large\textbf{Docente:} Ing. Doris Chicaiza MSc}\\[0.35cm]
+  {\large\textbf{Fecha:} 14 de julio de 2026}\\[0.35cm]
+  {\large\textbf{Repositorio del proyecto:}}\\[0.35cm]
+  {\large\url{https://github.com/alfonso1031/sigchos-agrotech}}\\[0.35cm]
+\end{center}
+
+\newpage
+\pagenumbering{roman}
+
+% ============================================================
+%  INDICES
+% ============================================================
+\tableofcontents
+\listoffigures
+\listoftables
+\listofalgorithms
+\addcontentsline{toc}{section}{Índice de Algoritmos}
+\listof{anexofloat}{Índice de Anexos}
+\addcontentsline{toc}{section}{Índice de Anexos}
+
+\newpage
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+% ============================================================
+%  TEMA
+% ============================================================
+\section*{Tema}
+\addcontentsline{toc}{section}{Tema}
+
+\textbf{Sigchos Agrotech: Detección de Enfermedades en Hojas de Zapallo mediante
+Inteligencia Artificial.} Aplicación móvil Android que permite a los
+agricultores del cantón Sigchos (provincia de Cotopaxi, Ecuador) fotografiar
+hojas de zapallo y obtener un diagnóstico fitosanitario preliminar mediante un
+modelo de aprendizaje profundo ejecutado directamente en el dispositivo, con
+apoyo de geolocalización, datos climáticos, recomendaciones agronómicas y un
+panel web administrativo de monitoreo agregado.
+
+% ============================================================
+%  1. DESCRIPCION DEL SISTEMA
+% ============================================================
+\section{Descripción del Sistema}
+
+\subsection{Descripción}
+
+Sigchos Agrotech es una aplicación móvil inteligente que detecta enfermedades en
+hojas de zapallo mediante la captura de imágenes con la cámara del celular. El
+sistema analiza la imagen con un modelo de inteligencia artificial que se
+ejecuta \textbf{en el propio dispositivo} (sin enviar la foto a un servidor de
+inferencia), muestra el diagnóstico preliminar con su porcentaje de confianza y
+genera recomendaciones de manejo agrícola para el agricultor. Cada diagnóstico
+queda geoetiquetado y asociado al clima del momento, lo que habilita un mapa de
+incidencia por finca y alertas de riesgo fúngico.
+
+El sistema se complementa con un \textbf{panel web administrativo} que permite
+a un técnico o supervisor monitorear de forma agregada todos los diagnósticos,
+los agricultores registrados y el rendimiento del clasificador.
+
+\subsection{Problema que resuelve}
+
+Los agricultores identifican las enfermedades foliares de forma visual y
+empírica, lo que puede generar diagnósticos tardíos o equivocados y afectar el
+crecimiento y rendimiento de la planta.
+
+\subsection{Funcionalidades técnicas}
+
+\begin{table}[H]
+\centering
+\caption{Funcionalidades técnicas implementadas}
+\label{tab:funcionalidades}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{p{4.3cm} p{9.2cm}}
+\toprule
+\bfseries Funcionalidad & \bfseries Implementación \\
+\midrule
+Autenticación & Firebase Authentication: correo/contraseña y Google Sign-In. \\
+Gestión jerárquica & CRUD de fincas $\rightarrow$ parcelas $\rightarrow$ cultivos, cada una con GPS. \\
+Polígono de finca & Trazado del contorno real de la finca tocando el mapa; área calculada con fórmula esférica. \\
+Captura de hoja & Cámara \textit{en vivo} embebida (\texttt{CameraController}) con marco guía, o selección desde galería. \\
+Clasificación IA & TensorFlow Lite \textit{on-device}, MobileNetV2 por transferencia de aprendizaje, 6 clases (5 enfermedades + rechazo \texttt{no\_hoja}). \\
+Rechazo de no-hojas & Clase entrenada \texttt{no\_hoja} + umbral mínimo de confianza (0{,}50). \\
+Geoetiquetado & \texttt{geolocator}: latitud/longitud guardadas como \texttt{GeoPoint} en cada diagnóstico. \\
+Snapshot climático & Temperatura, humedad y descripción del clima embebidos en el documento del diagnóstico. \\
+Mapa de incidencia & \texttt{google\_maps\_flutter} en modo satelital, polígonos de finca, filtros con/sin daño, leyenda de severidad. \\
+Clima y pronóstico & API REST de OpenWeather: clima actual + pronóstico de 5 días. \\
+Alerta de riesgo fúngico & Regla: humedad $\geq 80\%$ y temperatura entre 15--25\,°C. \\
+Notificaciones locales & \texttt{flutter\_local\_notifications}: resultado de diagnóstico, alerta climática y recordatorio semanal. \\
+Recomendaciones & Fichas por enfermedad desde Firestore, con contenido de respaldo local si la colección no está poblada. \\
+Historial & Lista filtrable por clase, con eliminación en cascada (documento + imagen en Storage). \\
+Tolerancia a fallo & Subida a Storage con 3 reintentos y \textit{backoff} exponencial; si falla, el diagnóstico se guarda igual. \\
+Validaciones & Cédula ecuatoriana (módulo 10), celular (prefijo 09, 10 dígitos), correo, campos obligatorios, fechas no futuras. \\
+Permisos & Diálogo de aviso previo antes de solicitar cámara/GPS y manejo de \textit{denegado permanentemente}. \\
+Panel web & Flutter Web con control de acceso por colección \texttt{admins} y cuatro vistas de monitoreo. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Hardware y servicios utilizados}
+
+\begin{itemize}
+  \item \textbf{Cámara} del dispositivo (paquete \texttt{camera}, vista previa
+        en vivo dentro de la app; \texttt{image\_picker} para galería).
+  \item \textbf{GPS} (paquete \texttt{geolocator}, precisión alta).
+  \item \textbf{API de clima}: OpenWeather (endpoints \texttt{/weather} y
+        \texttt{/forecast}).
+  \item \textbf{Firebase}: Authentication, Cloud Firestore, Storage y Hosting.
+  \item \textbf{TensorFlow Lite}: inferencia del clasificador en el dispositivo.
+  \item \textbf{Google Maps}: SDK for Android (mapa satelital, polígonos y
+        marcadores).
+\end{itemize}
+
+\subsection{Tecnologías}
+
+\begin{table}[H]
+\centering
+\caption{Stack tecnológico}
+\label{tab:stack}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{p{4.3cm} p{9.2cm}}
+\toprule
+\bfseries Categoría & \bfseries Tecnología / paquete \\
+\midrule
+Framework & Flutter (Dart 3.x) \\
+Arquitectura & Clean Architecture (\textit{domain} / \textit{data} / \textit{presentation}) \\
+Patrón de presentación & MVVM \\
+Gestión de estado & Provider (\texttt{ChangeNotifier}, \texttt{MultiProvider}) \\
+Autenticación & \texttt{firebase\_auth}, \texttt{google\_sign\_in} \\
+Base de datos & \texttt{cloud\_firestore} \\
+Almacenamiento & \texttt{firebase\_storage} \\
+IA \textit{on-device} & \texttt{tflite\_flutter}, \texttt{image} \\
+API de clima & OpenWeather vía \texttt{http} \\
+Geolocalización & \texttt{geolocator} \\
+Cámara / galería & \texttt{camera}, \texttt{image\_picker} \\
+Mapas & \texttt{google\_maps\_flutter} \\
+Permisos & \texttt{permission\_handler} \\
+Notificaciones & \texttt{flutter\_local\_notifications} \\
+Gráficos & \texttt{fl\_chart} \\
+Panel web & Flutter Web + Firebase Hosting \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+% ============================================================
+%  2. INTRODUCCION
+% ============================================================
+\section{Introducción}
+
+El cultivo de zapallo (\textit{Cucurbita} spp.) constituye una actividad
+económica relevante para pequeños y medianos agricultores del cantón Sigchos,
+en la provincia de Cotopaxi. Sin embargo, este cultivo es susceptible a diversas
+enfermedades foliares de origen fúngico, viral y por deficiencia nutricional
+que, al no ser detectadas oportunamente, reducen significativamente el
+rendimiento y la calidad de la cosecha.
+
+Tradicionalmente, el diagnóstico de estas enfermedades depende de la inspección
+visual del agricultor o de la visita de un técnico agrónomo: un proceso lento,
+subjetivo y no siempre disponible en zonas rurales. El avance de la inteligencia
+artificial aplicada a visión por computadora, junto con la masificación de los
+teléfonos inteligentes, permite hoy trasladar capacidades de diagnóstico
+especializado directamente a la mano del agricultor. La literatura reciente
+demuestra que las redes neuronales convolucionales alcanzan exactitudes
+competitivas en la clasificación de enfermedades foliares
+\cite{cnn2021transfer, pumpkin2024} y que su despliegue en dispositivos móviles
+mediante TensorFlow Lite es técnicamente viable incluso sin conexión a internet
+\cite{applemobile2024, maizemobile2023}.
+
+El presente documento constituye el \textbf{informe final del Proyecto Final} de
+la asignatura \textit{Desarrollo de Aplicaciones Móviles}. En él se documenta
+\textbf{Sigchos Agrotech}: una aplicación móvil Android construida en
+\textbf{Flutter}, que aplica \textbf{Clean Architecture} y el patrón
+\textbf{MVVM} con \textbf{Provider} como gestor de estado, integra un modelo de
+\textbf{TensorFlow Lite} entrenado mediante transferencia de aprendizaje sobre
+\textbf{MobileNetV2}, consume la \textbf{API REST de OpenWeather}, utiliza
+hardware móvil (cámara, GPS y Google Maps) y persiste su información en
+\textbf{Firebase} (Authentication, Firestore y Storage). El proyecto se
+complementa con un \textbf{panel web administrativo} (Flutter Web) para el
+monitoreo de la incidencia fitosanitaria a nivel agregado.
+
+% ============================================================
+%  3. PLANTEAMIENTO DEL PROBLEMA
+% ============================================================
+\section{Planteamiento del Problema}
+
+Los agricultores del cantón Sigchos identifican las enfermedades foliares del
+zapallo principalmente de forma visual y empírica, sin herramientas de apoyo
+diagnóstico. Esta práctica genera cuatro problemas concretos:
+
+\begin{itemize}
+  \item \textbf{Diagnóstico tardío}: los síntomas iniciales de enfermedades como
+        el mildiú velloso o el oídio suelen confundirse entre sí o pasar
+        desapercibidos, permitiendo que la enfermedad avance antes de aplicar un
+        control.
+  \item \textbf{Uso inadecuado de agroquímicos}: al no identificar con precisión
+        el patógeno, el agricultor puede aplicar fungicidas incorrectos,
+        incrementando costos y afectando el ambiente.
+  \item \textbf{Falta de trazabilidad y monitoreo zonal}: no existe un registro
+        digital de dónde y cuándo ocurren los brotes, lo que impide anticipar
+        focos de propagación entre fincas cercanas.
+  \item \textbf{Ausencia de correlación climática}: la humedad relativa y la
+        temperatura son factores determinantes en la proliferación de hongos
+        foliares, pero el agricultor no dispone de alertas automáticas que
+        relacionen el clima local con el riesgo fitosanitario.
+\end{itemize}
+
+A esto se suma una restricción de contexto: la conectividad móvil en las zonas
+rurales del cantón es intermitente, por lo que una solución que dependa de
+enviar cada fotografía a un servidor de inferencia remoto resulta poco
+confiable en campo.
+
+En consecuencia, se plantea la siguiente pregunta de investigación:
+\textit{¿Es posible desarrollar una aplicación móvil que, mediante inteligencia
+artificial embebida y datos de contexto (geolocalización y clima), permita a un
+agricultor de Sigchos obtener un diagnóstico preliminar confiable de
+enfermedades foliares en zapallo y recomendaciones de manejo agrícola en el
+momento y lugar donde se encuentra?}
+
+\subsection{Objetivo General}
+
+Desarrollar una aplicación móvil para Android, estructurada bajo Clean
+Architecture y el patrón MVVM con Provider, que permita a los agricultores del
+cantón Sigchos detectar tempranamente enfermedades foliares en cultivos de
+zapallo mediante la clasificación de imágenes con un modelo de inteligencia
+artificial ejecutado en el propio dispositivo, integrando geolocalización y
+datos climáticos para generar recomendaciones agrícolas contextualizadas, y
+complementada con un panel web administrativo para el monitoreo agregado de la
+incidencia fitosanitaria.
+
+\subsection{Objetivos Específicos}
+
+\begin{enumerate}
+  \item \textbf{Diseñar} la arquitectura de la aplicación móvil aplicando
+        \textbf{Clean Architecture} (capas \textit{domain}, \textit{data} y
+        \textit{presentation}) y el patrón \textbf{MVVM} con \textbf{Provider}
+        como gestor de estado reactivo, garantizando una regla de dependencia
+        unidireccional en todas las \textit{features} del proyecto.
+
+  \item \textbf{Entrenar} un modelo de clasificación de enfermedades foliares
+        del zapallo mediante transferencia de aprendizaje sobre
+        \textbf{MobileNetV2} y \textbf{desplegarlo} en formato \textbf{TensorFlow
+        Lite} para realizar inferencia sin conexión directamente en el
+        dispositivo móvil, incorporando una clase de rechazo que descarte
+        imágenes que no correspondan a una hoja de zapallo.
+
+  \item \textbf{Integrar} los servicios de \textbf{Firebase Authentication},
+        \textbf{Cloud Firestore} y \textbf{Firebase Storage} para autenticar a
+        los agricultores y persistir de forma segura fincas, parcelas, cultivos,
+        diagnósticos e imágenes, aplicando reglas de seguridad basadas en la
+        propiedad del documento.
+
+  \item \textbf{Consumir} la \textbf{API REST de OpenWeather} para obtener el
+        clima actual y el pronóstico según la ubicación GPS del agricultor, y
+        \textbf{generar} alertas automáticas de riesgo fúngico a partir de las
+        condiciones de humedad y temperatura registradas.
+
+  \item \textbf{Incorporar} el uso de \textbf{hardware móvil} (cámara en vivo,
+        GPS y Google Maps) para la captura georreferenciada de los diagnósticos y
+        su visualización en un mapa de incidencia con el contorno real de cada
+        finca.
+
+  \item \textbf{Desarrollar} un \textbf{panel web administrativo} independiente
+        en Flutter Web que permita monitorear de forma agregada los diagnósticos,
+        los agricultores registrados y el rendimiento del modelo de IA, con acceso
+        restringido y sin exponer dicha funcionalidad como un rol dentro de la
+        aplicación móvil.
+
+  \item \textbf{Implementar} un conjunto de \textbf{validaciones de formulario}
+        conformes a los formatos ecuatorianos (cédula mediante el algoritmo de
+        módulo 10 y número celular con prefijo 09) junto con las validaciones
+        generales de correo, campos obligatorios y valores numéricos.
+
+  \item \textbf{Definir y documentar} un plan de \textbf{pruebas de usabilidad y
+        de rendimiento} con casos de prueba trazables que permitan verificar el
+        cumplimiento funcional y no funcional del sistema.
+\end{enumerate}
+
+% ============================================================
+%  4. ALCANCE
+% ============================================================
+\section{Alcance}
+
+El proyecto comprende dos aplicaciones independientes que comparten un mismo
+proyecto de Firebase:
+
+\begin{itemize}
+  \item \textbf{Aplicación móvil (Android)}: registro e inicio de sesión
+        (correo/contraseña y Google Sign-In); gestión de fincas, parcelas y
+        cultivos de zapallo, incluyendo el trazado del polígono de la finca sobre
+        el mapa; captura de hojas mediante cámara en vivo o galería;
+        clasificación con IA \textit{on-device}; historial de diagnósticos
+        filtrable; mapa satelital de incidencia con filtros y navegación a focos;
+        consulta de clima con alertas de riesgo fúngico; recomendaciones
+        agrícolas por enfermedad; notificaciones locales; y edición de perfil con
+        foto.
+  \item \textbf{Panel web administrativo (Flutter Web)}: acceso restringido a
+        cuentas registradas en la colección \texttt{admins}, con vistas de
+        Resumen (KPIs y gráficos), Diagnósticos globales, Agricultores
+        registrados y Modelo de IA.
+\end{itemize}
+
+\textbf{No forma parte del alcance actual}:
+
+\begin{itemize}
+  \item La clasificación de la clase ``daño por plaga'' mediante IA: no se
+        dispone de un dataset público etiquetado adecuado, por lo que la clase
+        fue retirada del catálogo, de los colores y de las recomendaciones de
+        ambas aplicaciones.
+  \item La publicación en Google Play Store en producción (la cuenta de
+        desarrollador se encuentra en proceso de verificación; la aplicación está
+        distribuida en \textit{prueba interna}).
+  \item El CRUD completo de recomendaciones y la emisión de alertas manuales
+        desde el panel web (el panel es, hoy, de solo lectura/monitoreo).
+  \item Las notificaciones \textit{push} desde servidor: las notificaciones
+        actuales son locales y se disparan desde el propio dispositivo.
+  \item La versión iOS de la aplicación móvil.
+\end{itemize}
+
+% ============================================================
+%  5. ARQUITECTURA DEL SISTEMA
+% ============================================================
+\section{Arquitectura del Sistema}
+
+\subsection{Visión general}
+
+El sistema se compone de un cliente móvil, un cliente web y un \textit{backend}
+gestionado (Firebase), más un servicio externo de clima. La inferencia de IA no
+viaja a la nube: ocurre íntegramente dentro del teléfono.
+
+\begin{figure}[H]
+\centering
+\resizebox{0.95\linewidth}{!}{%
+\begin{tikzpicture}[node distance=1.2cm]
+  \node (movil)  [process, fill=blue!10, minimum height=1.4cm]
+        {\textbf{App móvil Android}\\{\scriptsize Flutter · Clean Arch + MVVM}\\{\scriptsize TFLite embebido}};
+  \node (fb)     [process, right=3.2cm of movil, fill=agroverde!14, minimum height=1.4cm]
+        {\textbf{Firebase}\\{\scriptsize Auth · Firestore · Storage}\\{\scriptsize Hosting}};
+  \node (web)    [process, right=3.2cm of fb, fill=agronaranja!14, minimum height=1.4cm]
+        {\textbf{Panel web admin}\\{\scriptsize Flutter Web}\\{\scriptsize solo lectura}};
+  \node (ow)     [io, below=1.5cm of movil, minimum height=1.0cm]
+        {OpenWeather API\\{\scriptsize REST}};
+  \node (gm)     [io, below=1.5cm of fb, minimum height=1.0cm]
+        {Google Maps SDK};
+  \node (hw)     [io, below=1.5cm of web, minimum height=1.0cm]
+        {Cámara · GPS};
+
+  \draw [arrow] (movil) -- node[above,font=\scriptsize]{lee/escribe} (fb);
+  \draw [arrow] (web)   -- node[above,font=\scriptsize]{lee} (fb);
+  \draw [arrow] (movil) -- node[right,font=\scriptsize]{HTTPS} (ow);
+  \draw [arrow] (movil.south east) -- (gm.north west);
+  \draw [arrow] (hw.north west) -- (movil.south east);
+\end{tikzpicture}
+}%
+\caption{Arquitectura general del sistema Sigchos Agrotech}
+\label{fig:arq_general}
+\end{figure}
+
+\subsection{Clean Architecture y MVVM}
+
+Cada \textit{feature} de la aplicación móvil (autenticación, fincas, parcelas,
+cultivos, diagnóstico, clima, historial, recomendaciones, mapa e inicio) se
+organiza en tres capas con una regla de dependencia unidireccional: la capa
+\textit{presentation} depende de \textit{domain}, y la capa \textit{data}
+implementa las abstracciones definidas en \textit{domain}. La capa
+\textit{domain} no conoce Flutter ni Firebase, lo que la hace comprobable de
+forma aislada.
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=0.6cm]
+  \node (pres) [capa, fill=blue!8]      {\textbf{Presentation}\\{\scriptsize Views (Widgets) · ViewModels (ChangeNotifier)}};
+  \node (dom)  [capa, below=of pres, fill=agroverde!15] {\textbf{Domain}\\{\scriptsize Entities · Repositories (abstractas) · UseCases}};
+  \node (dat)  [capa, below=of dom, fill=agronaranja!15] {\textbf{Data}\\{\scriptsize Models · DataSources · Repository Impl (Firebase/API/TFLite)}};
+
+  \draw [arrow] (pres) -- node[right,font=\scriptsize]{depende de} (dom);
+  \draw [arrow] (dat)  -- node[right,font=\scriptsize]{implementa} (dom);
+\end{tikzpicture}
+\caption{Clean Architecture: dirección de dependencias por \textit{feature}}
+\label{fig:clean_arch}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.92\linewidth}{!}{%
+\begin{tikzpicture}[node distance=1.1cm]
+  \node (view)   [process, fill=blue!10]     {View\\{\scriptsize StatelessWidget / StatefulWidget}};
+  \node (vm)     [process, right=2.5cm of view, fill=agronaranja!12]
+                 {ViewModel\\{\scriptsize ChangeNotifier}};
+  \node (uc)     [process, right=2.5cm of vm, fill=agroverde!12]
+                 {UseCase\\{\scriptsize 1 clase = 1 acción}};
+  \node (repo)   [process, below=1.3cm of uc, fill=gray!10]
+                 {Repository\\{\scriptsize abstracción}};
+  \node (repoimpl)[process, below=1.3cm of repo, fill=gray!20]
+                 {RepositoryImpl};
+  \node (ds)     [process, below=1.3cm of repoimpl, fill=blue!6]
+                 {DataSource\\{\scriptsize Firebase / OpenWeather / TFLite}};
+
+  \draw [arrow] (view) -- node[above,font=\scriptsize]{watch/read} (vm);
+  \draw [arrow] (vm)   -- node[above,font=\scriptsize]{llama} (uc);
+  \draw [arrow] (uc)   -- (repo);
+  \draw [arrow] (repoimpl) -- node[right,font=\scriptsize]{implementa} (repo);
+  \draw [arrow] (repoimpl) -- (ds);
+\end{tikzpicture}
+}%
+\caption{Flujo MVVM + Provider a través de las capas de Clean Architecture}
+\label{fig:mvvm_flow}
+\end{figure}
+
+Los \texttt{ViewModel} se registran globalmente en \texttt{main.dart} mediante un
+único \texttt{MultiProvider}, y cada Vista los consume con
+\texttt{context.watch<T>()} (para reconstruirse ante cambios) o
+\texttt{context.read<T>()} (para disparar acciones sin reconstruirse). La
+composición de dependencias es \textbf{manual}, sin \textit{service locator}:
+cada \texttt{DataSource} se envuelve en su \texttt{RepositoryImpl}, este se
+inyecta en los \texttt{UseCase} y estos en el \texttt{ViewModel}.
+
+\subsection{Flujo del caso de uso central: diagnóstico de una hoja}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.86\linewidth}{!}{%
+\begin{tikzpicture}[node distance=0.85cm]
+  \node (ini)  [startstop] {Inicio};
+  \node (foto) [io, below=of ini] {Capturar foto\\{\scriptsize cámara en vivo o galería}};
+  \node (gps)  [process, below=of foto] {Obtener GPS + clima actual};
+  \node (inf)  [process, below=of gps] {Inferencia TFLite\\{\scriptsize MobileNetV2, 224$\times$224}};
+  \node (dec)  [decision, below=of inf, text width=3.4cm] {¿clase = no\_hoja\\o confianza $<0{,}50$?};
+  \node (rech) [process, right=2.4cm of dec, fill=agronaranja!25] {Rechazar imagen\\{\scriptsize pedir nueva foto}};
+  \node (sub)  [process, below=1.1cm of dec] {Subir imagen a Storage\\{\scriptsize 3 reintentos, backoff}};
+  \node (save) [process, below=of sub] {Guardar diagnóstico en Firestore};
+  \node (not)  [process, below=of save] {Notificación local + Recomendaciones};
+  \node (fin)  [startstop, below=of not] {Fin};
+
+  \draw [arrow] (ini) -- (foto);
+  \draw [arrow] (foto) -- (gps);
+  \draw [arrow] (gps) -- (inf);
+  \draw [arrow] (inf) -- (dec);
+  \draw [arrow] (dec) -- node[above,font=\scriptsize]{sí} (rech);
+  \draw [arrow] (rech.north) |- (foto.east);
+  \draw [arrow] (dec) -- node[right,font=\scriptsize]{no} (sub);
+  \draw [arrow] (sub) -- (save);
+  \draw [arrow] (save) -- (not);
+  \draw [arrow] (not) -- (fin);
+\end{tikzpicture}
+}%
+\caption{Flujo del diagnóstico de una hoja (Captura $\rightarrow$ Analizando $\rightarrow$ Resultado)}
+\label{fig:flujo_diag}
+\end{figure}
+
+% ============================================================
+%  6. DESARROLLO
+% ============================================================
+\section{Desarrollo}
+
+\subsection{Conceptos}
+
+\subsubsection{El cultivo de zapallo}
+
+El zapallo pertenece al género \textit{Cucurbita}, familia
+\textit{Cucurbitaceae}. Es un cultivo de ciclo corto ampliamente sembrado en la
+sierra ecuatoriana, sensible a la humedad relativa alta y a la variación de
+temperatura, condiciones habituales en el clima húmedo-frío del cantón Sigchos.
+
+\subsubsection{Enfermedades foliares consideradas}
+
+El catálogo fitopatológico implementado en la aplicación contempla cinco clases
+de estado foliar, todas cubiertas por el modelo de clasificación, más una sexta
+clase técnica de rechazo (\texttt{no\_hoja}) que no representa una enfermedad
+sino una imagen no válida.
+
+\begin{table}[H]
+\centering
+\caption{Catálogo de clases foliares implementado}
+\label{tab:enfermedades}
+\renewcommand{\arraystretch}{1.4}
+\begin{tabular}{>{\bfseries}p{3.0cm} p{3.9cm} p{6.2cm}}
+\toprule
+\normalfont\bfseries Clase & \bfseries\normalfont Nombre científico & \bfseries\normalfont Síntomas característicos \\
+\midrule
+Hoja sana & Sin patógeno & Color verde uniforme, sin manchas, polvo ni perforaciones. \\
+Mancha foliar & \textit{Cercospora citrullina} & Manchas circulares marrones o grises con borde definido, a veces con halo amarillo. \\
+Mildiú & \textit{Pseudoperonospora cubensis} & Manchas angulares amarillas en el haz y moho grisáceo en el envés. \\
+Oídio & \textit{Podosphaera xanthii} & Polvo blanco harinoso sobre haz y envés; las hojas se amarillean y secan. \\
+Amarillamiento & Deficiencia / virosis & Amarillamiento general o internervial; posible transmisión por mosca blanca. \\
+\midrule
+\texttt{no\_hoja}\textsuperscript{*} & --- & Clase técnica de rechazo: objetos, fondos u hojas de otras especies. \\
+\bottomrule
+\end{tabular}
+\end{table}
+{\footnotesize\textsuperscript{*}\texttt{no\_hoja} no se muestra al usuario como
+diagnóstico: cuando el modelo la elige como clase ganadora, la aplicación
+rechaza la imagen y solicita una nueva captura.}
+
+\subsubsection{Transferencia de aprendizaje y MobileNetV2}
+
+La \textit{transferencia de aprendizaje} consiste en reutilizar una red
+convolucional preentrenada sobre un corpus grande y genérico (ImageNet) y
+reemplazar únicamente su capa de clasificación por una nueva, entrenada con el
+dominio específico. Este enfoque es el estándar en clasificación de enfermedades
+foliares porque permite alcanzar exactitudes altas con datasets de tamaño
+moderado \cite{cnn2021transfer}. Se eligió \textbf{MobileNetV2} por su bajo
+número de parámetros y su diseño orientado a dispositivos móviles, criterio
+coherente con la literatura sobre diagnóstico foliar \textit{on-device}
+\cite{pumpkinxai2025}.
+
+\subsubsection{Inferencia \textit{on-device} con TensorFlow Lite}
+
+TensorFlow Lite convierte un modelo entrenado a un formato binario optimizado
+(\texttt{.tflite}) que se ejecuta con un intérprete liviano en el teléfono. La
+ventaja operativa es determinante para el contexto rural del proyecto: el
+diagnóstico funciona \textbf{sin conexión a internet} y sin transmitir la
+imagen a un servidor, lo que reduce latencia, costo de datos y dependencia de
+cobertura \cite{maizemobile2023}.
+
+\subsubsection{Origen y preparación de los datos de entrenamiento}
+
+El modelo se entrenó con el conjunto de datos público \textit{Pumpkin Leaf
+Diseases Dataset From Bangladesh} \cite{kaggledataset}, compuesto por 2000
+imágenes RGB distribuidas en cinco clases (400 imágenes por clase): hoja sana,
+mildiú velloso, oídio, mosaico (mapeada a \textit{amarillamiento}) y mancha
+bacteriana (mapeada a \textit{mancha foliar}). Este mismo dataset ha sido
+utilizado en trabajos académicos recientes sobre clasificación de enfermedades
+de zapallo con redes convolucionales \cite{pumpkin2024, pumpkinxai2025}, lo que
+respalda su idoneidad.
+
+Para la clase de rechazo \texttt{no\_hoja} se construyó un subconjunto adicional
+con imágenes de hojas de otras especies y de objetos/fondos, dimensionado al
+promedio de imágenes de las clases de zapallo, y se aplicó
+\texttt{class\_weight} balanceado para evitar el sesgo derivado del
+desbalance.
+
+\subsubsection{Hiperparámetros y proceso de entrenamiento}
+
+\begin{table}[H]
+\centering
+\caption{Configuración de entrenamiento del modelo (Google Colab, GPU T4)}
+\label{tab:hiperparametros}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{p{5.2cm} p{8.3cm}}
+\toprule
+\bfseries Parámetro & \bfseries Valor \\
+\midrule
+Arquitectura base & MobileNetV2 preentrenada en ImageNet (\texttt{include\_top=False}) \\
+Tamaño de entrada & $224 \times 224 \times 3$ \\
+Aumento de datos & \texttt{RandomFlip}, rotación y zoom aleatorios \\
+Cabeza de clasificación & \texttt{GlobalAveragePooling2D} $\rightarrow$ \texttt{Dropout(0{,}3)} $\rightarrow$ \texttt{Dense(softmax)} \\
+Normalización & \texttt{preprocess\_input} de MobileNetV2 \textbf{como capa interna} del modelo \\
+Fase 1 (cabeza) & 12 épocas, Adam, \textit{learning rate} $1\times10^{-3}$, base congelada \\
+Fase 2 (\textit{fine-tuning}) & 8 épocas, Adam, \textit{learning rate} $1\times10^{-5}$, últimas 30 capas descongeladas \\
+Tamaño de lote & 32 \\
+Balanceo & \texttt{class\_weight} calculado con \texttt{compute\_class\_weight('balanced')} \\
+Exportación & \texttt{TFLiteConverter} con \texttt{Optimize.DEFAULT} y \texttt{float16} \\
+Tamaño final del artefacto & 4{,}3 MB (\texttt{assets/ml/model.tflite}) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+Un detalle de implementación crítico: dado que \texttt{preprocess\_input} quedó
+incorporado \textbf{dentro} del grafo del modelo, la aplicación debe alimentar
+al intérprete con los píxeles \textbf{crudos} en el rango $[0,255]$. Normalizar
+también en Dart aplicaría la transformación dos veces y degradaría por completo
+la predicción; este error se detectó y corrigió durante la integración (véase la
+Sección~\ref{sec:problemas}).
+
+\subsubsection{Métricas del modelo}
+
+Sobre el conjunto de validación (400 imágenes, \texttt{classification\_report}
+de \textit{scikit-learn}), el clasificador alcanzó una \textbf{exactitud global
+del 83\%} y un \textbf{recall macro del 83\%}.
+
+\begin{table}[H]
+\centering
+\caption{Precisión y \textit{recall} por clase (conjunto de validación)}
+\label{tab:metricas}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{l c c}
+\toprule
+\bfseries Clase & \bfseries Precisión & \bfseries Recall \\
+\midrule
+Hoja sana       & 0{,}86 & 0{,}84 \\
+Mancha foliar   & 0{,}66 & 0{,}86 \\
+Mildiú          & 0{,}81 & 0{,}88 \\
+Oídio           & 0{,}96 & 0{,}72 \\
+Amarillamiento  & 0{,}95 & 0{,}85 \\
+\midrule
+\bfseries Promedio macro & \bfseries 0{,}85 & \bfseries 0{,}83 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La clase más débil en precisión es \textit{mancha foliar} (0{,}66): el modelo la
+confunde con mildiú y oídio, algo esperable dado que las tres son manchas
+foliares de origen fúngico con solapamiento visual en estadios tempranos. El
+\textit{recall} más bajo corresponde a \textit{oídio} (0{,}72). Ambas
+observaciones orientan las recomendaciones de la Sección~\ref{sec:recomendaciones}.
+
+\subsection{Desarrollo del Programa}
+
+\subsubsection{Capa \textit{domain}: entidades y casos de uso}
+
+Las entidades son clases planas, sin dependencias de Flutter ni Firebase. El
+Listado~\ref{lst:entity} muestra \texttt{DiagnosticoEntity}, la entidad central
+del sistema.
+
+\begin{lstlisting}[caption={Entidad de dominio del diagnóstico}, label={lst:entity}]
+class DiagnosticoEntity {
+  final String id;
+  final String usuarioId;
+  final String cultivoId;
+  final String imagenUrl;
+  final String enfermedad;      // claseId ganador
+  final double confianza;       // 0..1
+  final List<ProbabilidadClase> top3;
+  final double? lat;
+  final double? lng;
+  final ClimaSnapshot? clima;   // clima embebido: evita un join posterior
+  final DateTime fecha;
+
+  const DiagnosticoEntity({
+    required this.id, required this.usuarioId, required this.cultivoId,
+    required this.imagenUrl, required this.enfermedad,
+    required this.confianza, required this.top3, required this.fecha,
+    this.lat, this.lng, this.clima,
+  });
+}
+\end{lstlisting}
+
+Cada acción de negocio se modela como un caso de uso independiente
+(Listado~\ref{lst:usecase}), lo que facilita las pruebas unitarias y evita que
+el ViewModel conozca al repositorio concreto.
+
+\begin{lstlisting}[caption={Caso de uso: clasificar una hoja}, label={lst:usecase}]
+class ClasificarHojaUseCase {
+  final DiagnosticoRepository repository;
+  const ClasificarHojaUseCase(this.repository);
+
+  Future<List<ProbabilidadClase>> call(File imagen) =>
+      repository.clasificarHoja(imagen);
+}
+\end{lstlisting}
+
+\subsubsection{Composición de dependencias en \texttt{main.dart}}
+
+Todas las dependencias se construyen a mano siguiendo el sentido de la regla de
+Clean Architecture y se registran una única vez en un \texttt{MultiProvider}
+(Listado~\ref{lst:main}).
+
+\begin{lstlisting}[caption={Composición manual de dependencias (fragmento de \texttt{main.dart})}, label={lst:main}]
+// Diagnóstico: IA + Storage + Firestore
+final tfliteService = TFLiteService();
+await tfliteService.cargarModelo();          // se carga una sola vez al arrancar
+
+final diagnosticoRepository = DiagnosticoRepositoryImpl(
+  dataSource: DiagnosticoFirestoreDataSource(),
+  tfliteService: tfliteService,
+  storageService: StorageService(),
+);
+
+runApp(
+  MultiProvider(
+    providers: [
+      ChangeNotifierProvider.value(value: authViewModel),
+      ChangeNotifierProvider(
+        create: (_) => DiagnosticoViewModel(
+          clasificarHojaUseCase: ClasificarHojaUseCase(diagnosticoRepository),
+          crearDiagnosticoUseCase: CrearDiagnosticoUseCase(diagnosticoRepository),
+          notificationService: notificationService,
+        ),
+      ),
+      // ... fincas, parcelas, cultivos, clima, historial, mapa, recomendaciones
+    ],
+    child: SigchosApp(rutaInicial: rutaInicial),
+  ),
+);
+\end{lstlisting}
+
+\subsubsection{Capa \textit{presentation}: ViewModel reactivo}
+
+El \texttt{DiagnosticoViewModel} orquesta cámara, IA y persistencia. El estado se
+expone mediante propiedades públicas y \texttt{notifyListeners()}. La ubicación
+llega ya resuelta desde la Vista (que gestionó el permiso con un aviso previo),
+manteniendo al ViewModel independiente del ciclo de vida de los permisos del
+sistema operativo.
+
+\begin{lstlisting}[caption={Fragmento del ViewModel de diagnóstico: análisis, rechazo y guardado}, label={lst:viewmodel}]
+Future<bool> analizarYGuardar({
+  required String usuarioId,
+  required String cultivoId,
+  ClimaSnapshot? clima,
+  double? lat,
+  double? lng,
+}) async {
+  if (imagen == null) return false;
+  estado = DiagnosticoEstado.analizando;
+  notifyListeners();
+
+  try {
+    final probabilidades = await _clasificarHojaUseCase(imagen!);
+    final ganadora = probabilidades.first;
+
+    // Rechazo de imágenes que no son hoja de zapallo: lo decide sobre todo la
+    // clase entrenada `no_hoja`; el umbral es solo un piso de seguridad.
+    if (ganadora.claseId == 'no_hoja' ||
+        ganadora.probabilidad < _umbralConfianzaMinima) {   // 0.50
+      errorMessage = 'La imagen no parece una hoja de zapallo o no se ve con '
+          'claridad. Acerca la cámara a una sola hoja, con buena luz.';
+      estado = DiagnosticoEstado.esperandoFoto;
+      return false;
+    }
+
+    final entidad = DiagnosticoEntity(
+      id: '', usuarioId: usuarioId, cultivoId: cultivoId, imagenUrl: '',
+      enfermedad: ganadora.claseId, confianza: ganadora.probabilidad,
+      top3: probabilidades.skip(1).take(3).toList(),
+      fecha: DateTime.now(), lat: lat, lng: lng, clima: clima,
+    );
+
+    resultado = await _crearDiagnosticoUseCase(
+      diagnostico: entidad, imagen: imagen!,
+    );
+    estado = DiagnosticoEstado.listo;
+
+    if (ganadora.claseId != 'hoja_sana') {
+      await _notificationService?.resultadoDiagnostico(
+        enfermedad: infoDe(ganadora.claseId).nombre,
+        confianzaPorcentaje: (ganadora.probabilidad * 100).round(),
+      );
+    }
+    return true;
+  } on Failure catch (f) {
+    errorMessage = f.message;
+    estado = DiagnosticoEstado.esperandoFoto;
+    return false;
+  } finally {
+    notifyListeners();
+  }
+}
+\end{lstlisting}
+
+\subsubsection{Capa \textit{data}: servicio de inferencia TFLite}
+
+El \texttt{TFLiteService} carga el intérprete y las etiquetas una sola vez al
+arrancar la aplicación. Si el asset no existe o el intérprete no puede
+inicializarse, el servicio cae en un \textbf{modo simulado} que permite seguir
+demostrando el flujo completo de la aplicación durante el desarrollo
+(Listado~\ref{lst:tflite}).
+
+\begin{lstlisting}[caption={Carga tolerante a fallo del modelo TFLite}, label={lst:tflite}]
+class TFLiteService {
+  static const int inputSize = 224;
+  Interpreter? _interpreter;
+  List<String>? _labels;
+  bool modeloCargado = false;
+
+  Future<void> cargarModelo() async {
+    try {
+      _interpreter = await Interpreter.fromAsset('assets/ml/model.tflite');
+      final raw = await rootBundle.loadString('assets/ml/labels.txt');
+      _labels = raw.split('\n').map((e) => e.trim())
+                   .where((e) => e.isNotEmpty).toList();
+      modeloCargado = true;
+    } catch (e) {
+      modeloCargado = false;   // cae a modo simulado, no rompe el flujo
+      debugPrint('[TFLite] FALLO al cargar modelo -> modo SIMULADO: $e');
+    }
+  }
+
+  Future<List<ClasificacionHoja>> clasificar(File imagen) async {
+    return modeloCargado && _interpreter != null
+        ? _clasificarConModelo(imagen)
+        : _clasificarSimulado();
+  }
+}
+\end{lstlisting}
+
+El preprocesamiento de la imagen (Listado~\ref{lst:preproc}) redimensiona a
+$224\times224$ y entrega los píxeles \textbf{sin normalizar}, porque la
+normalización ya vive dentro del grafo del modelo.
+
+\begin{lstlisting}[caption={Preprocesamiento e inferencia}, label={lst:preproc}]
+Future<List<ClasificacionHoja>> _clasificarConModelo(File imagen) async {
+  final decodificada = img.decodeImage(await imagen.readAsBytes());
+  if (decodificada == null) return _clasificarSimulado();
+
+  final redimensionada = img.copyResize(
+    decodificada, width: inputSize, height: inputSize,
+  );
+
+  // El modelo TFLite incluye `preprocess_input` de MobileNetV2 como capa
+  // interna: aquí se pasan los píxeles CRUDOS [0,255]. Normalizar también acá
+  // aplicaría la transformación dos veces y produciría basura.
+  final input = List.generate(1, (_) => List.generate(inputSize,
+    (y) => List.generate(inputSize, (x) {
+      final p = redimensionada.getPixel(x, y);
+      return [p.r.toDouble(), p.g.toDouble(), p.b.toDouble()];
+    }),
+  ));
+
+  final labels = _labels ?? _ordenClases;
+  final output = [List.filled(labels.length, 0.0)];
+  _interpreter!.run(input, output);
+
+  final resultados = <ClasificacionHoja>[
+    for (var i = 0; i < labels.length; i++)
+      ClasificacionHoja(labels[i], output[0][i]),
+  ];
+  resultados.sort((a, b) => b.probabilidad.compareTo(a.probabilidad));
+  return resultados;
+}
+\end{lstlisting}
+
+\begin{algorithm}[H]
+\caption{Clasificación de una hoja de zapallo}
+\label{alg:clasificacion}
+\begin{algorithmic}[1]
+\Require Imagen $I$ capturada por el usuario
+\Ensure Diagnóstico persistido o rechazo de la imagen
+\State $I' \gets \text{redimensionar}(I, 224 \times 224)$
+\State $T \gets \text{tensor}(I')$ \Comment{píxeles crudos $[0,255]$}
+\State $P \gets \text{interprete.run}(T)$ \Comment{vector de 6 probabilidades}
+\State $P \gets \text{ordenarDescendente}(P)$
+\State $g \gets P[0]$ \Comment{clase ganadora}
+\If{$g.clase = \texttt{no\_hoja}$ \textbf{ or } $g.prob < 0{,}50$}
+  \State \textbf{rechazar} imagen y solicitar nueva captura
+  \State \textbf{return}
+\EndIf
+\State $u \gets \text{subirImagenConReintentos}(I, 3)$ \Comment{cadena vacía si falla}
+\State $d \gets \text{DiagnosticoEntity}(g.clase,\ g.prob,\ P[1..3],\ gps,\ clima,\ u)$
+\State $\text{Firestore.guardar}(d)$
+\If{$g.clase \neq \texttt{hoja\_sana}$}
+  \State $\text{notificarUsuario}(g)$
+\EndIf
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Tolerancia a fallo en la subida de imágenes}
+
+La subida a Firebase Storage reintenta ante fallos transitorios de red con
+\textit{backoff} exponencial. Si tras los reintentos sigue fallando, el
+diagnóstico se guarda igualmente sin imagen en la nube: una falla de
+infraestructura no debe bloquear la funcionalidad principal del sistema
+(Listado~\ref{lst:retry}).
+
+\begin{lstlisting}[caption={Subida con reintentos y \textit{backoff} exponencial}, label={lst:retry}]
+Future<String> _subirConReintentos(
+  File imagen, String usuarioId, {int intentos = 3},
+) async {
+  for (var i = 0; i < intentos; i++) {
+    try {
+      return await storageService.subirImagenHoja(imagen, usuarioId);
+    } catch (_) {
+      if (i == intentos - 1) return '';         // tolerante a fallo
+      await Future.delayed(Duration(milliseconds: 800 * (1 << i)));
+    }
+  }
+  return '';
+}
+\end{lstlisting}
+
+\subsubsection{Regla de riesgo fúngico (clima)}
+
+La entidad de clima encapsula la regla de negocio que dispara la alerta: humedad
+relativa igual o mayor al 80\,\% y temperatura entre 15 y 25\,°C, rango en el que
+proliferan el mildiú velloso y la mancha foliar (Listado~\ref{lst:clima}).
+
+\begin{lstlisting}[caption={Regla de alerta de riesgo fúngico}, label={lst:clima}]
+class ClimaActualEntity {
+  final String ciudad;
+  final double temperatura;
+  final int humedad;
+  final String descripcion;
+  final double vientoKmh;
+  final int probabilidadLluvia;
+
+  /// Riesgo fúngico alto: humedad >= 80% y temperatura entre 15-25 °C.
+  bool get riesgoFungicoAlto =>
+      humedad >= 80 && temperatura >= 15 && temperatura <= 25;
+}
+\end{lstlisting}
+
+\subsubsection{Validación de cédula ecuatoriana (módulo 10)}
+
+\begin{lstlisting}[caption={Validador de cédula ecuatoriana}, label={lst:cedula}]
+static String? cedulaEcuatoriana(String? value) {
+  if (value == null || value.trim().isEmpty) return 'Ingresa tu cédula';
+  final cedula = value.trim();
+  if (!RegExp(r'^\d{10}$').hasMatch(cedula)) return 'Debe tener 10 dígitos';
+
+  final provincia = int.parse(cedula.substring(0, 2));
+  if (provincia < 1 || provincia > 24) return 'Cédula no válida';
+
+  final tercerDigito = int.parse(cedula[2]);
+  if (tercerDigito > 6) return 'Cédula no válida';
+
+  final coeficientes = [2, 1, 2, 1, 2, 1, 2, 1, 2];
+  var suma = 0;
+  for (var i = 0; i < 9; i++) {
+    var valor = int.parse(cedula[i]) * coeficientes[i];
+    if (valor >= 10) valor -= 9;
+    suma += valor;
+  }
+  final verificador = (10 - (suma % 10)) % 10;
+  if (verificador != int.parse(cedula[9])) return 'Cédula no válida';
+  return null;
+}
+\end{lstlisting}
+
+\begin{algorithm}[H]
+\caption{Validación de cédula ecuatoriana (módulo 10)}
+\label{alg:cedula}
+\begin{algorithmic}[1]
+\Require Cadena $c$ de 10 dígitos
+\Ensure \textit{true} si la cédula es válida
+\If{$|c| \neq 10$ \textbf{ or } $c$ no es numérica} \State \textbf{return} \textit{false} \EndIf
+\State $p \gets \text{entero}(c[0..1])$ \Comment{código de provincia}
+\If{$p < 1$ \textbf{ or } $p > 24$} \State \textbf{return} \textit{false} \EndIf
+\If{$c[2] > 6$} \State \textbf{return} \textit{false} \EndIf
+\State $C \gets [2,1,2,1,2,1,2,1,2]$; \quad $s \gets 0$
+\For{$i \gets 0$ \textbf{to} $8$}
+  \State $v \gets c[i] \times C[i]$
+  \If{$v \geq 10$} \State $v \gets v - 9$ \EndIf
+  \State $s \gets s + v$
+\EndFor
+\State $d \gets (10 - (s \bmod 10)) \bmod 10$
+\State \textbf{return} $d = c[9]$
+\end{algorithmic}
+\end{algorithm}
+
+\subsubsection{Polígono de finca y cálculo de área}
+
+El agricultor traza el contorno real de su finca tocando los vértices sobre el
+mapa. El área se calcula con la fórmula de área esférica sobre el elipsoide
+terrestre, y el centro del polígono (centroide) se usa para ubicar el marcador y
+centrar la cámara del mapa (Listado~\ref{lst:area}).
+
+\begin{lstlisting}[caption={Área de un polígono geográfico en hectáreas}, label={lst:area}]
+/// Área en hectáreas de un polígono definido por sus vértices (en orden).
+static double areaHectareas(List<GeoPunto> puntos) {
+  if (puntos.length < 3) return 0;
+  const radioTierra = 6378137.0; // metros
+  double suma = 0;
+  for (var i = 0; i < puntos.length; i++) {
+    final p1 = puntos[i];
+    final p2 = puntos[(i + 1) % puntos.length];
+    suma += _rad(p2.lng - p1.lng) *
+        (2 + math.sin(_rad(p1.lat)) + math.sin(_rad(p2.lat)));
+  }
+  final areaM2 = (suma * radioTierra * radioTierra / 2).abs();
+  return areaM2 / 10000; // m² -> ha
+}
+\end{lstlisting}
+
+\subsubsection{Gestión de permisos con aviso previo}
+
+En lugar de disparar el diálogo nativo del sistema sin contexto, la aplicación
+muestra primero una explicación del uso que dará al permiso, y maneja
+explícitamente el caso de \textit{denegado permanentemente} ofreciendo abrir los
+ajustes de la app (Listado~\ref{lst:permisos}).
+
+\begin{lstlisting}[caption={Solicitud de permiso con aviso previo}, label={lst:permisos}]
+Future<bool> solicitarPermisoConAviso(
+  BuildContext context, {
+  required Permission permiso,
+  required String titulo,
+  required String mensaje,
+  required IconData icono,
+}) async {
+  final estadoActual = await permiso.status;
+  if (estadoActual.isGranted) return true;
+
+  if (estadoActual.isPermanentlyDenied) {
+    final abrirAjustes = await _mostrarDialogo(context, /* ... */);
+    if (abrirAjustes) await openAppSettings();
+    return false;
+  }
+
+  final continuar = await _mostrarDialogo(context, /* ... */);
+  if (!continuar) return false;
+
+  final resultado = await permiso.request();
+  return resultado.isGranted;
+}
+\end{lstlisting}
+
+\subsubsection{Protección de claves de API}
+
+La clave de Google Maps no se escribe en el \texttt{AndroidManifest.xml}: se
+declara como \texttt{manifestPlaceholder} y Gradle la inyecta en tiempo de
+compilación leyéndola de \texttt{android/secrets.properties}, archivo excluido
+del control de versiones. En el manifiesto solo aparece la referencia
+\texttt{\$\{MAPS\_API\_KEY\}}. La clave de OpenWeather reside en
+\texttt{lib/core/constants/api\_keys.dart}, también excluido del repositorio y
+distribuido como plantilla \texttt{.example}.
+
+% ============================================================
+%  7. PANEL WEB ADMINISTRATIVO
+% ============================================================
+\section{Panel Web Administrativo}
+
+El panel web es una aplicación Flutter Web independiente
+(\texttt{web\_admin/}), desplegada en Firebase Hosting, que comparte el mismo
+proyecto de Firebase que la app móvil pero \textbf{no comparte código} con ella.
+Se decidió deliberadamente no implementar el rol de administrador dentro de la
+aplicación móvil: separar el binario evita enviar a los agricultores código y
+permisos que no les corresponden.
+
+\subsection{Control de acceso}
+
+La autenticación se realiza con Firebase Authentication (correo/contraseña o
+Google mediante \textit{popup}), pero autenticarse \textbf{no basta}: tras
+validar la credencial, el sistema verifica que el UID exista como documento en
+la colección \texttt{admins}. Si no existe, se cierra la sesión inmediatamente y
+se informa que la cuenta carece de permisos. Un agricultor con cuenta válida no
+puede, por tanto, ingresar al panel (Listado~\ref{lst:adminauth}). Los documentos
+de \texttt{admins} solo pueden crearse manualmente desde la consola de Firebase:
+las reglas de seguridad prohíben toda escritura desde el cliente.
+
+\begin{lstlisting}[caption={Verificación de privilegio de administrador}, label={lst:adminauth}]
+Future<bool> login(String email, String password) async {
+  try {
+    final credential = await _auth.signInWithEmailAndPassword(
+      email: email, password: password,
+    );
+    final uid = credential.user!.uid;
+
+    final esAdmin = await _adminRepository.esAdmin(uid);   // ¿existe /admins/{uid}?
+    if (!esAdmin) {
+      await _auth.signOut();
+      errorMessage = 'Esta cuenta no tiene permisos de administrador.';
+      return false;
+    }
+
+    usuario = credential.user;
+    nombreAdmin = usuario?.email?.split('@').first ?? 'Administrador';
+    return true;
+  } on FirebaseAuthException catch (e) {
+    errorMessage = switch (e.code) {
+      'user-not-found' => 'No existe una cuenta con ese correo.',
+      'wrong-password' || 'invalid-credential' => 'Correo o contraseña incorrectos.',
+      'invalid-email' => 'El correo no es válido.',
+      _ => 'Ocurrió un error al iniciar sesión.',
+    };
+    return false;
+  } finally {
+    isLoading = false;
+    notifyListeners();
+  }
+}
+\end{lstlisting}
+
+\subsection{Arquitectura del panel}
+
+Al tratarse de un panel de \textbf{solo lectura} orientado al monitoreo, no se
+replicó la separación completa \textit{domain/data/presentation} de la app
+móvil: se aplicó una arquitectura MVVM simplificada de dos capas.
+
+\begin{itemize}
+  \item \texttt{AdminRepository}: único punto de acceso a Firestore. Expone
+        métodos de lectura para \texttt{usuarios}, \texttt{fincas},
+        \texttt{parcelas}, \texttt{cultivos} y \texttt{diagnosticos\_hojas}, más
+        la comprobación \texttt{esAdmin(uid)}.
+  \item \texttt{AdminDataViewModel}: carga las cinco colecciones en paralelo con
+        \texttt{Future.wait} una sola vez, y expone \textbf{proyecciones ya
+        combinadas} (un \textit{join} en memoria, dado que Firestore no soporta
+        \textit{joins} nativos) para cada vista: diagnósticos enriquecidos con el
+        nombre del agricultor y de la parcela, resumen por agricultor, KPIs,
+        distribución por clase, serie temporal y alertas de zona.
+  \item \texttt{AdminAuthViewModel}: sesión y verificación de privilegio.
+  \item \texttt{AdminShell}: \textit{layout} con barra lateral fija y conmutación
+        de sección mediante \texttt{switch} sobre un \texttt{enum AdminSection}.
+\end{itemize}
+
+\begin{figure}[H]
+\centering
+\resizebox{0.9\linewidth}{!}{%
+\begin{tikzpicture}[node distance=1.1cm]
+  \node (shell) [process, fill=blue!10] {AdminShell\\{\scriptsize Sidebar + sección activa}};
+  \node (views) [process, below=1.1cm of shell, fill=agronaranja!12, minimum width=8cm]
+        {Resumen · Diagnósticos · Agricultores · Modelo IA};
+  \node (vm)    [process, below=1.1cm of views, fill=agroverde!12]
+        {AdminDataViewModel\\{\scriptsize join en memoria · KPIs · series}};
+  \node (repo)  [process, below=1.1cm of vm, fill=gray!15]
+        {AdminRepository\\{\scriptsize lectura de Firestore}};
+  \node (fs)    [io, below=1.1cm of repo] {Cloud Firestore};
+
+  \draw [arrow] (shell) -- (views);
+  \draw [arrow] (views) -- node[right,font=\scriptsize]{watch} (vm);
+  \draw [arrow] (vm) -- (repo);
+  \draw [arrow] (repo) -- (fs);
+\end{tikzpicture}
+}%
+\caption{Arquitectura del panel web administrativo (MVVM simplificado)}
+\label{fig:arq_web}
+\end{figure}
+
+\subsection{Vistas del panel}
+
+\subsubsection{Resumen (\textit{dashboard})}
+
+Concentra la lectura ejecutiva del estado fitosanitario:
+
+\begin{itemize}
+  \item \textbf{Cuatro KPIs}: diagnósticos totales, porcentaje de hojas enfermas,
+        agricultores activos y confianza media del modelo sobre los diagnósticos
+        reales registrados.
+  \item \textbf{Gráfico diario apilado} (\texttt{chartDiario}): conteo de hojas
+        sanas frente a enfermas en los últimos 14 días.
+  \item \textbf{Distribución por clase}: proporción de cada enfermedad sobre el
+        total de diagnósticos.
+  \item \textbf{Diagnósticos recientes}: los seis últimos, con agricultor,
+        parcela, clase y confianza.
+  \item \textbf{Alertas de zona} (\texttt{alertasDeZona}): parcelas con dos o más
+        diagnósticos con daño de la misma enfermedad en los últimos 7 días,
+        ordenadas por número de casos. Es el mecanismo de detección de un foco de
+        propagación.
+\end{itemize}
+
+\begin{lstlisting}[caption={Detección de focos de propagación (alertas de zona)}, label={lst:alertas}]
+/// Parcelas con >= 2 diagnósticos con daño en los últimos 7 días.
+List<({String parcela, String enfermedad, int casos})> alertasDeZona() {
+  final limite = DateTime.now().subtract(const Duration(days: 7));
+  final conteo = <String, int>{};
+
+  for (final d in _diagnosticos) {
+    if (d.enfermedad == 'hoja_sana' || d.fecha.isBefore(limite)) continue;
+    final parcela = _nombreParcelaDeCultivo(d.cultivoId);
+    final clave = '$parcela|${d.enfermedad}';
+    conteo[clave] = (conteo[clave] ?? 0) + 1;
+  }
+
+  final resultado = conteo.entries
+      .where((e) => e.value >= 2)
+      .map((e) {
+        final partes = e.key.split('|');
+        return (parcela: partes[0], enfermedad: partes[1], casos: e.value);
+      })
+      .toList()
+    ..sort((a, b) => b.casos.compareTo(a.casos));
+
+  return resultado.take(3).toList();
+}
+\end{lstlisting}
+
+\subsubsection{Diagnósticos}
+
+Tabla global de todos los diagnósticos del sistema, ordenados por fecha
+descendente y filtrables por clase de enfermedad mediante \textit{chips}. Cada
+fila muestra agricultor, parcela, clase, confianza y fecha. Las filas con
+coordenadas GPS son \textbf{clicables}: abren la ubicación del diagnóstico en
+Google Maps en una pestaña nueva (\texttt{url\_launcher}).
+
+\subsubsection{Agricultores}
+
+Listado de las cuentas registradas con su finca principal, número de parcelas,
+número de diagnósticos realizados y fecha del último diagnóstico. Permite
+identificar rápidamente a los usuarios activos y a los inactivos.
+
+\subsubsection{Modelo IA}
+
+Panel de rendimiento del clasificador: exactitud global, \textit{recall} medio,
+número de clases entrenadas, tamaño del artefacto y, para cada clase, precisión
+y \textit{recall} con una barra de progreso. Documenta también, de forma
+explícita, la clase \textit{daño por plaga} como no soportada por falta de
+dataset.
+
+\subsection{Despliegue}
+
+El panel se compila con \texttt{flutter build web} y se publica en Firebase
+Hosting; la configuración de \texttt{firebase.json} apunta a
+\texttt{web\_admin/build/web} con reescritura de todas las rutas a
+\texttt{index.html} (aplicación de página única).
+
+% ============================================================
+%  8. PRUEBAS
+% ============================================================
+\section{Pruebas}
+
+Esta sección define el \textbf{plan de pruebas} del sistema. Los casos de prueba
+están especificados y listos para ejecutarse; la \textbf{ejecución formal con
+usuarios reales del cantón Sigchos se encuentra pendiente} y sus resultados se
+consignarán en la columna correspondiente y en el Anexo de evidencia.
+
+\subsection{Estrategia general}
+
+Se definen tres niveles de prueba:
+
+\begin{enumerate}
+  \item \textbf{Pruebas de sistema (funcionales)}: verifican que cada
+        requisito funcional se cumpla de extremo a extremo sobre el dispositivo
+        físico, con datos reales de Firebase.
+  \item \textbf{Pruebas de usabilidad}: miden si un agricultor sin formación
+        técnica logra completar las tareas centrales sin ayuda, y con qué grado
+        de satisfacción.
+  \item \textbf{Pruebas de rendimiento}: miden tiempos de respuesta, consumo de
+        memoria y comportamiento del clasificador bajo condiciones de campo
+        (poca luz, sin conexión, gama baja).
+\end{enumerate}
+
+\textbf{Entorno de prueba}: dispositivo físico Android real (TECNO KJ6,
+Android 13), conexión móvil intermitente, proyecto de Firebase en modo
+producción con reglas de seguridad activas.
+
+\subsection{Pruebas de usuario --- usabilidad}
+
+\subsubsection{Protocolo}
+
+\begin{itemize}
+  \item \textbf{Perfil de participantes}: 6 agricultores del cantón Sigchos, sin
+        experiencia previa con la aplicación; se incluye al menos un participante
+        mayor de 55 años y uno con baja alfabetización digital.
+  \item \textbf{Método}: prueba de tareas con pensamiento en voz alta. El
+        facilitador no interviene salvo bloqueo total.
+  \item \textbf{Métricas}: tasa de éxito por tarea, tiempo hasta completarla,
+        número de errores, número de solicitudes de ayuda.
+  \item \textbf{Instrumento de satisfacción}: cuestionario \textbf{SUS} (System
+        Usability Scale, 10 ítems, escala 1--5). Se establece como
+        \textbf{criterio de aceptación} un puntaje SUS $\geq 68$, valor
+        considerado el promedio de la industria.
+\end{itemize}
+
+\begin{table}[H]
+\centering
+\caption{Casos de prueba de usabilidad}
+\label{tab:pu}
+\renewcommand{\arraystretch}{1.3}
+\small
+\begin{tabular}{p{1.1cm} p{4.0cm} p{4.6cm} p{1.7cm} p{1.6cm}}
+\toprule
+\bfseries ID & \bfseries Tarea solicitada & \bfseries Criterio de éxito & \bfseries Tiempo objetivo & \bfseries Resultado \\
+\midrule
+PU-01 & Crear una cuenta y entrar a la app & El usuario completa el registro sin ayuda; los errores de validación se entienden. & $\leq$ 3 min & Pendiente \\
+PU-02 & Registrar su finca dibujando el contorno en el mapa & El polígono se cierra y el área en hectáreas aparece calculada. & $\leq$ 4 min & Pendiente \\
+PU-03 & Diagnosticar una hoja con la cámara & Llega a la pantalla de resultado y sabe decir qué enfermedad detectó. & $\leq$ 2 min & Pendiente \\
+PU-04 & Explicar qué debe hacer según la recomendación & Identifica al menos dos acciones concretas de la lista. & $\leq$ 2 min & Pendiente \\
+PU-05 & Encontrar un diagnóstico anterior en el historial & Localiza el diagnóstico usando el filtro por enfermedad. & $\leq$ 1{,}5 min & Pendiente \\
+PU-06 & Interpretar la alerta de riesgo fúngico del clima & Explica con sus palabras que hay riesgo de hongos. & $\leq$ 1 min & Pendiente \\
+PU-07 & Ubicar un foco de enfermedad en el mapa & Toca un marcador rojo y describe a qué corresponde. & $\leq$ 2 min & Pendiente \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsubsection{Aspectos de usabilidad ya incorporados al diseño}
+
+Estas decisiones anticipan los hallazgos esperados de la prueba:
+
+\begin{itemize}
+  \item \textbf{Aviso previo de permisos}: se explica el uso de cámara y GPS
+        antes de mostrar el diálogo del sistema, evitando el rechazo por
+        desconfianza.
+  \item \textbf{Marco guía en la cámara}: orienta al usuario a encuadrar una sola
+        hoja.
+  \item \textbf{Mensaje de rechazo accionable}: cuando el modelo devuelve
+        \texttt{no\_hoja}, el mensaje no dice ``error'' sino qué hacer
+        (``acerca la cámara a una sola hoja, con buena luz y fondo simple'').
+  \item \textbf{Anillo de confianza y severidad}: el resultado no muestra solo un
+        nombre técnico, sino un indicador visual de gravedad.
+  \item \textbf{Mostrar/ocultar contraseña}: reduce errores de tipeo en teclados
+        pequeños.
+\end{itemize}
+
+\subsection{Pruebas de rendimiento --- pruebas del sistema}
+
+\begin{table}[H]
+\centering
+\caption{Casos de prueba de rendimiento}
+\label{tab:pr}
+\renewcommand{\arraystretch}{1.3}
+\small
+\begin{tabular}{p{1.1cm} p{4.2cm} p{4.4cm} p{2.0cm} p{1.5cm}}
+\toprule
+\bfseries ID & \bfseries Escenario & \bfseries Métrica y criterio de aceptación & \bfseries Instrumento & \bfseries Resultado \\
+\midrule
+PR-01 & Arranque en frío de la app & Tiempo hasta la pantalla de Inicio $\leq$ 3 s (incluye carga del modelo TFLite). & Cronómetro / \texttt{flutter run --profile} & Pendiente \\
+PR-02 & Inferencia del modelo sobre una foto & Latencia de \texttt{Interpreter.run()} $\leq$ 1{,}5 s en gama baja. & \texttt{Stopwatch} en \texttt{TFLiteService} & Pendiente \\
+PR-03 & Flujo completo captura $\rightarrow$ resultado & Tiempo total $\leq$ 6 s con red 4G. & Cronómetro & Pendiente \\
+PR-04 & Diagnóstico \textbf{sin conexión} a internet & La clasificación se completa igual; el diagnóstico se guarda sin imagen. & Modo avión & Pendiente \\
+PR-05 & Subida a Storage con red inestable & Los 3 reintentos con \textit{backoff} se ejecutan; si fallan, no se pierde el diagnóstico. & Simulación de corte de red & Pendiente \\
+PR-06 & Historial con 100+ diagnósticos & \textit{Scroll} fluido, sin caída bajo 55 FPS. & Flutter DevTools & Pendiente \\
+PR-07 & Mapa con 50 marcadores y polígonos & Renderizado $\leq$ 2 s, gestos sin bloqueo. & Flutter DevTools & Pendiente \\
+PR-08 & Consumo de memoria en el flujo de diagnóstico & Pico de memoria $\leq$ 250 MB. & DevTools \textit{Memory} & Pendiente \\
+PR-09 & Carga del panel web con 500 diagnósticos & Primer render $\leq$ 4 s (5 colecciones en paralelo). & Chrome DevTools & Pendiente \\
+PR-10 & Tamaño del APK de \textit{release} & $\leq$ 60 MB. & \texttt{flutter build apk --release} & Pendiente \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Casos de prueba funcionales (pruebas de sistema)}
+
+\begin{longtable}{p{1.2cm} p{3.6cm} p{4.4cm} p{3.9cm}}
+\caption{Casos de prueba funcionales del sistema}
+\label{tab:cp} \\
+\toprule
+\bfseries ID & \bfseries Caso de prueba & \bfseries Datos / pasos de entrada & \bfseries Resultado esperado \\
+\midrule
+\endfirsthead
+\multicolumn{4}{l}{\small\textit{(continuación de la Tabla \ref{tab:cp})}}\\
+\toprule
+\bfseries ID & \bfseries Caso de prueba & \bfseries Datos / pasos de entrada & \bfseries Resultado esperado \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+CP-01 & Registro con datos válidos & Nombre, cédula \texttt{1712345678}, celular \texttt{0991234567}, correo y contraseña válidos. & Cuenta creada; documento en \texttt{usuarios}; navega a Inicio. \\
+CP-02 & Registro con cédula inválida & Cédula \texttt{1712345679} (dígito verificador incorrecto). & Se muestra ``Cédula no válida''; no se crea la cuenta. \\
+CP-03 & Registro con celular inválido & Celular \texttt{0891234567} (no empieza en 09). & Se muestra el error de formato; no se crea la cuenta. \\
+CP-04 & Login con credenciales incorrectas & Contraseña errónea. & Mensaje ``Correo o contraseña incorrectos''; permanece en Login. \\
+CP-05 & Login con Google & Cuenta de Google válida. & Sesión iniciada; navega a Inicio. \\
+CP-06 & Sesión persistente & Cerrar y reabrir la app con sesión activa. & Entra directo a Inicio sin pedir credenciales. \\
+CP-07 & Registrar finca con polígono & Tocar 4 vértices en el mapa y guardar. & Finca creada con \texttt{limite} de 4 puntos y área en hectáreas $>0$. \\
+CP-08 & Registrar parcela y cultivo & Parcela bajo la finca; cultivo bajo la parcela. & Jerarquía finca $\rightarrow$ parcela $\rightarrow$ cultivo persistida en Firestore. \\
+CP-09 & Denegar permiso de cámara & Rechazar el permiso en el diálogo del sistema. & La app no crashea; explica por qué lo necesita y permite reintentar. \\
+CP-10 & Captura desde cámara en vivo & Fotografiar una hoja de zapallo enferma. & Se obtiene una clase distinta de \texttt{hoja\_sana} con confianza $\geq$ 0{,}50. \\
+CP-11 & Captura desde galería & Seleccionar imagen del dataset. & Mismo flujo de clasificación que la cámara. \\
+CP-12 & \textbf{Rechazo de imagen no-hoja} & Fotografiar un objeto (p.\,ej. una taza). & Se rechaza la imagen con mensaje accionable; no se guarda diagnóstico. \\
+CP-13 & Geoetiquetado del diagnóstico & GPS activo durante la captura. & El documento incluye \texttt{ubicacion} (\texttt{GeoPoint}) y el mini-mapa muestra el punto. \\
+CP-14 & Snapshot climático & Clima cargado antes del diagnóstico. & El documento incluye temperatura, humedad y descripción. \\
+CP-15 & Recomendaciones por enfermedad & Diagnóstico de \texttt{mildiu}. & Se listan las recomendaciones de mildiú ordenadas por \texttt{orden}. \\
+CP-16 & Recomendaciones sin Firestore poblado & Colección \texttt{recomendaciones} vacía. & Se muestra el contenido de respaldo local; la pantalla nunca queda vacía. \\
+CP-17 & Historial filtrado & Filtrar por ``Oídio''. & Solo se listan los diagnósticos de esa clase. \\
+CP-18 & Eliminar diagnóstico & Eliminar un ítem del historial. & Se borra el documento y también la imagen en Storage. \\
+CP-19 & Mapa de incidencia & Abrir el mapa con diagnósticos geolocalizados. & Se pintan el polígono de la finca y los marcadores por severidad; los filtros con/sin daño funcionan. \\
+CP-20 & Clima y pronóstico & Abrir la pantalla de Clima con GPS activo. & Se muestran clima actual y pronóstico de 5 días de la ubicación real. \\
+CP-21 & Alerta de riesgo fúngico & Humedad $\geq$ 80\,\% y temperatura entre 15--25\,°C. & Se muestra la alerta y se dispara una notificación local (una vez por sesión). \\
+CP-22 & Notificación de resultado & Diagnóstico con enfermedad detectada. & Llega una notificación local con la clase y el porcentaje de confianza. \\
+CP-23 & Editar perfil con foto & Cambiar nombre y subir foto. & Foto en Storage (\texttt{perfiles/\{uid\}/avatar.jpg}) y \texttt{fotoUrl} actualizado. \\
+CP-24 & \textbf{Seguridad}: leer datos ajenos & Consultar un documento con \texttt{usuarioId} de otro usuario. & Firestore responde \texttt{permission-denied}. \\
+CP-25 & \textbf{Seguridad}: acceso al panel web sin ser admin & Login en el panel con cuenta de agricultor. & Se cierra la sesión y se informa que la cuenta no tiene permisos. \\
+CP-26 & Panel web: KPIs & Abrir Resumen con datos existentes. & Los KPIs coinciden con el conteo real de Firestore. \\
+CP-27 & Panel web: alerta de zona & Dos diagnósticos con daño en la misma parcela en 7 días. & La parcela aparece en la lista de alertas de zona. \\
+CP-28 & Panel web: abrir ubicación & Clic en una fila de diagnóstico con GPS. & Se abre Google Maps en el punto exacto. \\
+CP-29 & Panel web: filtro de diagnósticos & Filtrar por una clase. & Solo se muestran los diagnósticos de esa clase. \\
+CP-30 & Modo simulado del clasificador & Eliminar \texttt{model.tflite} de los \textit{assets}. & La app no crashea: cae a modo simulado y el flujo sigue siendo demostrable. \\
+\end{longtable}
+
+\subsection{Evidencia de pruebas}
+
+La evidencia de la ejecución de los casos anteriores se recopilará en:
+
+\begin{enumerate}
+  \item Capturas de pantalla de cada caso ejecutado (Anexo, imágenes
+        \texttt{img/25} a \texttt{img/31}).
+  \item Registro de la consola de Firestore mostrando los documentos creados por
+        los casos CP-01, CP-07, CP-08 y CP-13.
+  \item Salida de \texttt{flutter analyze} (análisis estático sin advertencias en
+        ambos proyectos).
+  \item Salida de \texttt{flutter build apk} (compilación exitosa).
+  \item Tabla de resultados del cuestionario SUS con el puntaje promedio de los
+        seis participantes.
+  \item Capturas de Flutter DevTools con las mediciones de FPS, memoria y
+        latencia de inferencia.
+\end{enumerate}
+
+% ============================================================
+%  9. DIAGRAMA DE CARPETAS
+% ============================================================
+\section{Diagrama de Carpetas}
+
+El repositorio se organiza en dos proyectos Flutter independientes que comparten
+el mismo backend de Firebase.
+
+{\small
+\begin{verbatim}
+PROYECTO FINAL/
+  firebase.json                    <- hosting + apunta a firebase/
+  README.md
+  firebase/
+    firestore.rules                <- reglas de seguridad de Firestore
+    firestore.indexes.json         <- indices compuestos
+    storage.rules                  <- reglas de Storage
+  docs/                            <- GitHub Pages (Play Store)
+    index.html
+    privacy/index.html             <- politica de privacidad
+    eliminar-cuenta/index.html     <- eliminacion de cuenta
+  mobile_app/                      <- App Android (Flutter)
+    android/
+      app/src/main/AndroidManifest.xml
+      secrets.properties.example   <- plantilla de la API key de Maps
+    assets/
+      images/logo.png
+      ml/model.tflite              <- modelo TFLite (float16, 4.3 MB)
+      ml/labels.txt                <- 6 etiquetas (5 clases + no_hoja)
+    lib/
+      main.dart                    <- composicion de dependencias + MultiProvider
+      app.dart                     <- MaterialApp + rutas
+      firebase_options.dart
+      core/
+        constants/                 <- firestore_paths, enfermedades, api_keys
+        errors/                    <- Failure y subclases
+        models/                    <- GeoPunto
+        routes/                    <- AppRoutes + AppRouter (transiciones)
+        theme/                     <- AppColors, AppTheme
+        utils/                     <- Validators, GeoUtils, permission_helper
+        widgets/                   <- AppTextField, AppPrimaryButton, MainTabBar...
+      features/
+        auth/            domain | data | presentation
+        fincas/          domain | data | presentation
+        parcelas/        domain | data | presentation
+        cultivos/        domain | data | presentation
+        diagnostico/     domain | data | presentation
+        clima/           domain | data | presentation
+        recomendaciones/ domain | data | presentation
+        historial/       presentation (reusa el domain de diagnostico)
+        mapa/            presentation (reusa domain de fincas y diagnostico)
+        inicio/          presentation
+      services/                    <- TFLiteService, LocationService,
+                                      StorageService, NotificationService
+    tool/
+      entrenar_modelo_colab.ipynb     <- notebook v1 (5 clases)
+      entrenar_modelo_colab_v2.ipynb  <- notebook v2 (+ clase no_hoja)
+      seed_recomendaciones.dart       <- poblado de Firestore
+  web_admin/                       <- Panel administrativo (Flutter Web)
+    lib/
+      main.dart  app.dart
+      core/
+        constants/                 <- firestore_paths, enfermedades
+        models/                    <- UsuarioDoc, FincaDoc, DiagnosticoDoc...
+        services/                  <- AdminRepository
+        theme/                     <- AppColors, AppTheme
+        viewmodels/                <- AdminDataViewModel
+        widgets/                   <- AdminSidebar
+      features/
+        auth/          <- AdminAuthViewModel + AdminLoginView
+        shell/         <- AdminShell (layout + navegacion)
+        dashboard/     <- Resumen (KPIs, graficos, alertas de zona)
+        diagnosticos/  <- tabla global filtrable
+        agricultores/  <- listado de cuentas
+        modelo_ia/     <- metricas del clasificador
+\end{verbatim}
+}
+
+Estructura interna de cada \textit{feature} de la app móvil:
+
+{\small
+\begin{verbatim}
+features/<nombre>/
+  domain/
+    entities/       <- clases planas, sin Flutter ni Firebase
+    repositories/   <- contratos abstractos
+    usecases/       <- 1 clase = 1 accion de negocio
+  data/
+    models/         <- mapeo desde/hacia Firestore (fromMap / toMap)
+    datasources/    <- acceso concreto (Firestore, HTTP, TFLite)
+    repositories/   <- implementacion del contrato del domain
+  presentation/
+    viewmodels/     <- ChangeNotifier (estado + orquestacion)
+    views/          <- pantallas
+    widgets/        <- componentes propios de la feature
+\end{verbatim}
+}
+
+% ============================================================
+%  10. MODELO DE DATOS
+% ============================================================
+\section{Modelo de Datos}
+
+La persistencia utiliza \textbf{Cloud Firestore}, una base de datos NoSQL
+orientada a documentos. Al no existir \textit{joins} nativos, las relaciones se
+modelan mediante referencias por identificador y, cuando el costo de una consulta
+adicional no se justifica, mediante \textbf{desnormalización controlada} (por
+ejemplo, el \texttt{climaSnapshot} embebido dentro del documento del
+diagnóstico).
+
+\subsection{Colecciones}
+
+\begin{table}[H]
+\centering
+\caption{Colecciones de Firestore}
+\label{tab:firestore}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{>{\ttfamily\bfseries}p{3.4cm} p{9.7cm}}
+\toprule
+\normalfont\bfseries Colección & \bfseries\normalfont Campos principales \\
+\midrule
+usuarios & nombre, cedula, telefono, email, fotoUrl, rol, fechaRegistro \\
+fincas & usuarioId, nombre, ubicacion (GeoPoint), limite (List\textless GeoPoint\textgreater), direccion, areaHectareas, fechaCreacion \\
+parcelas & fincaId, usuarioId, nombre, areaHectareas, ubicacion (GeoPoint), fechaCreacion \\
+cultivos & parcelaId, usuarioId, variedad, fechaSiembra, plantasEstimadas, etapa \\
+diagnosticos\_hojas & usuarioId, cultivoId, imagenUrl, enfermedad, confianza, top3[], ubicacion (GeoPoint), climaSnapshot, fecha \\
+recomendaciones & enfermedad, orden, titulo, descripcion \\
+admins & documento cuyo ID es el UID; su sola existencia otorga permiso de administrador \\
+clima\textsuperscript{*} / alertas\textsuperscript{*} & reservadas para historial climático y notificaciones basadas en servidor \\
+\bottomrule
+\end{tabular}
+\end{table}
+{\footnotesize\textsuperscript{*}Colecciones declaradas en el esquema y
+contempladas en las reglas de seguridad, pero aún no pobladas activamente (véase
+Recomendaciones).}
+
+\subsection{Relaciones}
+
+\begin{figure}[H]
+\centering
+\begin{tikzpicture}[node distance=1.5cm]
+  \node (usr) [process, fill=blue!8] {usuarios};
+  \node (fin) [process, right=2.2cm of usr, fill=agroverde!10] {fincas};
+  \node (par) [process, right=2.2cm of fin, fill=agroverde!14] {parcelas};
+  \node (cul) [process, below=1.3cm of par, fill=agroverde!18] {cultivos};
+  \node (dia) [process, below=1.3cm of fin, fill=agronaranja!14] {diagnosticos\_hojas};
+  \node (rec) [process, below=1.3cm of usr, fill=gray!10] {recomendaciones};
+
+  \draw [arrow] (usr) -- node[above,font=\scriptsize]{1:N} (fin);
+  \draw [arrow] (fin) -- node[above,font=\scriptsize]{1:N} (par);
+  \draw [arrow] (par) -- node[right,font=\scriptsize]{1:N} (cul);
+  \draw [arrow] (cul) -- node[above,font=\scriptsize]{1:N} (dia);
+  \draw [arrow] (usr) |- (dia);
+  \draw [arrow] (dia) -- node[left,font=\scriptsize]{enfermedad} (rec);
+\end{tikzpicture}
+\caption{Relaciones lógicas entre colecciones (referencias por ID, sin \textit{join} nativo)}
+\label{fig:er}
+\end{figure}
+
+\subsection{Índices compuestos}
+
+Firestore exige un índice compuesto para toda consulta que combine \texttt{where}
+con \texttt{orderBy} sobre campos distintos. Se declararon cuatro en
+\texttt{firestore.indexes.json}:
+
+\begin{table}[H]
+\centering
+\caption{Índices compuestos declarados}
+\label{tab:indices}
+\renewcommand{\arraystretch}{1.25}
+\begin{tabular}{p{4.2cm} p{9.0cm}}
+\toprule
+\bfseries Colección & \bfseries Campos del índice \\
+\midrule
+\texttt{fincas} & \texttt{usuarioId} (asc) + \texttt{fechaCreacion} (desc) \\
+\texttt{parcelas} & \texttt{fincaId} (asc) + \texttt{fechaCreacion} (desc) \\
+\texttt{diagnosticos\_hojas} & \texttt{usuarioId} (asc) + \texttt{fecha} (desc) \\
+\texttt{recomendaciones} & \texttt{enfermedad} (asc) + \texttt{orden} (asc) \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Reglas de seguridad}
+
+Las reglas exigen autenticación y verifican la \textbf{propiedad del documento}
+(\texttt{usuarioId == request.auth.uid}) o la pertenencia a la colección
+\texttt{admins} para la lectura ampliada del panel. La colección
+\texttt{recomendaciones} es de lectura para cualquier usuario autenticado y de
+escritura solo para administradores; la colección \texttt{admins} no admite
+escritura desde ningún cliente (Listado~\ref{lst:rules}).
+
+\begin{lstlisting}[language=JS, caption={Reglas de seguridad de Cloud Firestore (extracto)}, label={lst:rules}]
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function esAdmin() {
+      return request.auth != null &&
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function esDueno(datos) {
+      return request.auth != null && datos.usuarioId == request.auth.uid;
+    }
+
+    match /diagnosticos_hojas/{doc} {
+      allow read:            if esDueno(resource.data) || esAdmin();
+      allow create:          if esDueno(request.resource.data);
+      allow update, delete:  if esDueno(resource.data);
+    }
+
+    match /recomendaciones/{doc} {
+      allow read:  if request.auth != null;
+      allow write: if esAdmin();
+    }
+
+    match /admins/{uid} {
+      allow read:  if request.auth != null && request.auth.uid == uid;
+      allow write: if false;  // solo desde la consola de Firebase
+    }
+  }
+}
+\end{lstlisting}
+
+Las reglas de Storage, además de exigir que el usuario sea el dueño de la ruta,
+restringen el \textbf{tipo de contenido} a imágenes y el \textbf{tamaño} a 10 MB
+por archivo:
+
+\begin{lstlisting}[language=JS, caption={Reglas de Firebase Storage (extracto)}, label={lst:storagerules}]
+match /diagnosticos/{usuarioId}/{archivo} {
+  allow read:  if request.auth != null;
+  allow write: if request.auth != null && request.auth.uid == usuarioId
+    && request.resource.size < 10 * 1024 * 1024
+    && request.resource.contentType.matches('image/.*');
+}
+\end{lstlisting}
+
+% ============================================================
+%  11. TRABAJOS RELACIONADOS
+% ============================================================
+\section{Trabajos Relacionados}
+
+Según Hasan et al. (2024), en su artículo \textit{``Automated Disease Diagnosis
+in Pumpkin Plants Using Advanced CNN Models''} \cite{pumpkin2024}, mencionan que
+evaluaron los modelos ResNet-34, DenseNet-121 y EfficientNet-B7 sobre 2000
+imágenes de hojas de zapallo distribuidas en cinco clases —incluyendo mildiú
+velloso y oídio—, reportando que DenseNet-121 alcanzó la mayor exactitud
+(86\,\%), un valor de referencia frente al 83\,\% obtenido en este proyecto con
+una arquitectura deliberadamente más liviana. De manera similar, según los
+autores del estudio \textit{``Explainable AI-Enhanced Deep Learning for Pumpkin
+Leaf Disease Detection''} (2025) \cite{pumpkinxai2025}, mencionan que emplearon
+MobileNetV3Large adaptado para dispositivos móviles junto con técnicas de IA
+explicable, siendo pioneros en aplicar dichas técnicas a la clasificación de
+enfermedades de zapallo, lo que respalda directamente la elección de una
+arquitectura de la familia MobileNet para la inferencia \textit{on-device}
+implementada en Sigchos Agrotech.
+
+Según Santoso et al. (2024), en su artículo \textit{``Enhancing Apple Leaf
+Disease Detection with Deep Learning: From Model Training to Android App
+Integration''} \cite{applemobile2024}, mencionan que integraron el modelo
+ReXNet-150 en una aplicación Android mediante TensorFlow Lite para lograr un
+diagnóstico en tiempo real sin conexión a internet, validando la viabilidad
+técnica del enfoque adoptado en este proyecto. Asimismo, según el estudio
+\textit{``A Mobile-Based System for Detecting Plant Leaf Diseases Using Deep
+Learning''} \cite{maizemobile2023}, mencionan que un modelo convertido al formato
+\texttt{.tflite} permitió la detección, segmentación y seguimiento de
+enfermedades foliares del maíz directamente desde el dispositivo móvil, con
+tiempos de respuesta compatibles con el uso en campo. Complementariamente, según
+Aarif et al. (2025) \cite{precisionagro2025}, en su revisión sobre tecnologías de
+sensores para agricultura de precisión, mencionan que la integración de sensores
+GPS y datos climáticos en tiempo real habilita alertas tempranas de riesgo
+fitosanitario, principio que Sigchos Agrotech aplica en su módulo de clima y
+geolocalización; y según el trabajo de clasificación con CNN y transferencia de
+aprendizaje publicado en \textit{Electronics} \cite{cnn2021transfer}, mencionan
+que dicha técnica supera consistentemente al entrenamiento desde cero cuando el
+dataset disponible es de tamaño moderado, justificando la estrategia de
+entrenamiento seguida en este proyecto.
+
+% ============================================================
+%  12. AVANCE TECNICO
+% ============================================================
+\newpage
+\section{Avance Técnico}
+
+\subsection{Arquitectura aplicada}
+
+La arquitectura descrita en la Sección~4 se aplicó de forma consistente en las
+diez \textit{features} de la app móvil. La composición de dependencias es manual
+(sin \textit{service locator}) y se centraliza en \texttt{main.dart}: cada
+\texttt{DataSource} se envuelve en su \texttt{RepositoryImpl}, este se inyecta en
+los \texttt{UseCase}, y estos en el \texttt{ViewModel} correspondiente,
+registrado en un \texttt{MultiProvider} único.
+
+Dos \textit{features} ilustran la economía del diseño: \texttt{historial} y
+\texttt{mapa} \textbf{no tienen capa \textit{domain} ni \textit{data} propias};
+reutilizan los casos de uso de \texttt{diagnostico} y \texttt{fincas}. El
+\texttt{MapaViewModel}, por ejemplo, se suscribe a los \textit{streams} de
+\texttt{ObtenerFincasUseCase} y \texttt{ObtenerHistorialUseCase} y solo combina
+sus resultados, evitando duplicar el acceso a datos.
+
+\subsection{Estructura del proyecto}
+
+Véase la Sección~9 (Diagrama de Carpetas). Adicionalmente, el enrutamiento se
+centraliza en \texttt{core/routes/app\_router.dart}, que resuelve cada ruta
+nombrada con una transición personalizada (\textit{fade} + \textit{slide}
+mediante \texttt{PageRouteBuilder}), evitando la duplicación de
+\texttt{Navigator.push} con \texttt{MaterialPageRoute} a lo largo de la
+aplicación. Las 16 rutas se declaran como constantes en \texttt{AppRoutes}.
+
+\subsection{Pantallas desarrolladas}
+
+\begin{table}[H]
+\centering
+\caption{Pantallas implementadas en la app móvil (mínimo requerido: 4)}
+\label{tab:pantallas}
+\renewcommand{\arraystretch}{1.3}
+\small
+\begin{tabular}{p{4.3cm} p{8.9cm}}
+\toprule
+\bfseries Pantalla & \bfseries Descripción funcional \\
+\midrule
+Splash / Carga & Splash nativo a pantalla completa; resuelve la sesión activa antes del primer \textit{frame} y salta directo a Inicio o Login. \\
+Login & Correo-contraseña y Google Sign-In; campo de contraseña con mostrar/ocultar. \\
+Registro & Nombre, cédula, celular, correo y contraseña, con validación en tiempo real. \\
+Inicio & Saludo con avatar, clima resumido, finca activa, botón de diagnóstico, últimos resultados y alerta de zona. \\
+Captura & Cámara en vivo embebida con marco guía; alternativa de galería. \\
+Analizando & Estado de inferencia del modelo TFLite. \\
+Resultado del diagnóstico & Imagen, severidad, anillo de confianza, top-3 de probabilidades, mini-mapa satelital y definición de la enfermedad. \\
+Recomendaciones & Lista numerada de acciones agronómicas según la enfermedad detectada. \\
+Historial & Lista filtrable por clase, con eliminación. \\
+Mapa de zonas afectadas & Satelital, polígono de la finca, filtros con/sin daño, navegación a foco, leyenda de severidad y botón ``mi ubicación''. \\
+Clima & Clima actual, alerta de riesgo fúngico y pronóstico de 5 días. \\
+Fincas & Listado jerárquico de fincas del agricultor. \\
+Registrar finca & Mapa interactivo para trazar el polígono (deshacer/limpiar), área calculada automáticamente. \\
+Registrar parcela & Alta de parcela bajo una finca, con GPS. \\
+Registrar cultivo & Variedad, fecha de siembra, plantas estimadas y etapa. \\
+Perfil / Editar perfil & Datos del agricultor y foto, con subida a Storage. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\caption{Pantallas implementadas en el panel web administrativo}
+\label{tab:pantallasweb}
+\renewcommand{\arraystretch}{1.3}
+\begin{tabular}{p{4.3cm} p{8.9cm}}
+\toprule
+\bfseries Pantalla & \bfseries Descripción funcional \\
+\midrule
+Login de administrador & Correo-contraseña o Google; rechaza cuentas que no estén en \texttt{admins}. \\
+Resumen & 4 KPIs, gráfico diario de 14 días, distribución por clase, diagnósticos recientes y alertas de zona. \\
+Diagnósticos & Tabla global filtrable por clase; las filas con GPS abren Google Maps. \\
+Agricultores & Cuentas con finca, número de parcelas, diagnósticos y último diagnóstico. \\
+Modelo IA & Exactitud, \textit{recall} medio, clases entrenadas, tamaño y métricas por clase. \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Código principal explicado}
+
+La Sección~6.2 documenta, con su explicación, los listados centrales del
+sistema: la entidad de dominio (Listado~\ref{lst:entity}), el caso de uso
+(Listado~\ref{lst:usecase}), la composición de dependencias
+(Listado~\ref{lst:main}), el ViewModel del diagnóstico
+(Listado~\ref{lst:viewmodel}), el servicio de inferencia TFLite
+(Listados~\ref{lst:tflite} y~\ref{lst:preproc}), la subida tolerante a fallo
+(Listado~\ref{lst:retry}), la regla de riesgo fúngico (Listado~\ref{lst:clima}),
+la validación de cédula (Listado~\ref{lst:cedula}), el cálculo de área
+(Listado~\ref{lst:area}) y la gestión de permisos (Listado~\ref{lst:permisos}).
+La Sección~7 documenta el código del panel web (Listados~\ref{lst:adminauth}
+y~\ref{lst:alertas}) y la Sección~10 las reglas de seguridad
+(Listados~\ref{lst:rules} y~\ref{lst:storagerules}).
+
+\subsection{Base de datos utilizada}
+
+\textbf{Cloud Firestore} (Google Firebase) en modo nativo. Se emplean cuatro
+índices compuestos para las consultas que combinan \texttt{where} con
+\texttt{orderBy} (Tabla~\ref{tab:indices}). El almacenamiento de imágenes usa
+\textbf{Firebase Storage} bajo el plan Blaze (dentro de la capa gratuita de
+5\,GB), con rutas segregadas por usuario:
+\texttt{diagnosticos/\{uid\}/\{timestamp\}.jpg} y
+\texttt{perfiles/\{uid\}/avatar.jpg}.
+
+\subsection{Evidencia de funcionamiento}
+
+El funcionamiento se verificó mediante:
+
+\begin{enumerate}
+  \item \texttt{flutter analyze} sin advertencias en \texttt{mobile\_app} y
+        \texttt{web\_admin}.
+  \item Compilación exitosa del APK (\texttt{flutter build apk}).
+  \item Instalación y ejecución en \textbf{dispositivo físico Android real}
+        (TECNO KJ6, Android 13) mediante \textit{USB debugging}, cubriendo el
+        flujo completo: registro/login, alta de finca con polígono, captura de
+        hoja, clasificación, guardado en Firestore/Storage, historial, mapa y
+        clima con datos reales.
+  \item Verificación de los documentos generados en la consola de Firestore y de
+        las imágenes en Storage.
+  \item Despliegue del panel web en Firebase Hosting y comprobación del control
+        de acceso con una cuenta sin privilegios.
+  \item Distribución de la aplicación en el canal de \textbf{prueba interna} de
+        Google Play Console, con la ficha de la tienda, la política de privacidad
+        y la página de eliminación de cuenta publicadas en GitHub Pages.
+\end{enumerate}
+
+Las capturas de esta evidencia se incluyen en los Anexos.
+
+\subsection{Problemas encontrados}
+\label{sec:problemas}
+
+\begin{itemize}
+  \item \textbf{Doble normalización de la imagen (el error más costoso)}: el
+        modelo exportado incluye \texttt{preprocess\_input} de MobileNetV2 como
+        capa interna, pero la primera versión del \texttt{TFLiteService} también
+        normalizaba los píxeles en Dart. La transformación se aplicaba dos veces
+        y toda predicción caía en la clase \texttt{no\_hoja}. Se resolvió pasando
+        los píxeles crudos $[0,255]$ al intérprete.
+  \item \textbf{Falsos positivos con imágenes que no son hojas}: el modelo v1
+        (5 clases) asignaba con alta confianza una enfermedad a cualquier
+        fotografía, incluidos objetos y fondos. Se resolvió entrenando un modelo
+        v2 con una sexta clase de rechazo \texttt{no\_hoja}, construida con hojas
+        de otras especies y objetos, más un umbral mínimo de confianza.
+  \item \textbf{Firebase Storage exige plan Blaze}: los proyectos nuevos de
+        Firebase requieren facturación habilitada para usar Storage, aun dentro
+        de la capa gratuita. Se activó Blaze y, mientras tanto, se implementó la
+        subida de imágenes tolerante a fallo para no bloquear el diagnóstico.
+  \item \textbf{Emulador de Android inestable}: el emulador de Android Studio
+        provocó inestabilidad del sistema operativo en el equipo de desarrollo;
+        se optó por realizar todas las pruebas en dispositivo físico vía
+        \textit{USB debugging}.
+  \item \textbf{Discrepancia en los nombres de clase del dataset}: los nombres
+        reales de las carpetas del dataset de Kaggle (\texttt{Healthy Leaf}, no
+        \texttt{Healthy}) no coincidían con el mapeo inicial. Se agregó
+        normalización de texto y un listado de carpetas disponibles en el notebook
+        para depurar el mapeo.
+  \item \textbf{Clase ``daño por plaga'' sin dataset}: no existe un conjunto
+        público etiquetado adecuado. La clase se retiró del catálogo, de los
+        colores y de las recomendaciones de ambas aplicaciones, en lugar de
+        mantenerla como una clase que el clasificador nunca podría predecir.
+  \item \textbf{Permisos solicitados sin aviso previo}: la primera versión pedía
+        cámara y GPS directamente con el diálogo nativo. Se implementó el
+        diálogo de aviso previo reutilizable \texttt{solicitarPermisoConAviso},
+        que explica el uso antes de disparar el permiso del sistema y gestiona el
+        caso de denegación permanente.
+  \item \textbf{\textit{Core library desugaring}}:
+        \texttt{flutter\_local\_notifications} requirió habilitar el
+        \textit{desugaring} de Java 8 en Gradle, no configurado por defecto en un
+        proyecto Flutter nuevo.
+  \item \textbf{Splash con franja visible}: el splash de Flutter se renderizaba
+        con métricas de ventana incompletas. Se resolvió preservando el splash
+        \textbf{nativo} (\texttt{flutter\_native\_splash}) hasta que la app
+        dibuja su primer \textit{frame} real, y resolviendo la sesión activa por
+        debajo de él.
+  \item \textbf{Fincas representadas por un solo punto}: un pin no comunica la
+        extensión real de la finca. Se implementó el trazado de polígonos con
+        cálculo de área esférica, manteniendo compatibilidad con las fincas
+        antiguas que solo guardaron un punto GPS.
+\end{itemize}
+
+\subsection{Mejoras pendientes}
+
+\begin{itemize}
+  \item Recolectar y etiquetar un dataset propio de ``daño por plaga'' para
+        reincorporar la clase al modelo.
+  \item Ampliar los datos de \texttt{mancha\_foliar}, la clase con menor
+        precisión (0{,}66), confundida con mildiú y oídio.
+  \item Actualizar la vista ``Modelo IA'' del panel web con las métricas del
+        modelo v2 y el tamaño real del artefacto (4{,}3 MB); actualmente muestra
+        las métricas del v1.
+  \item Ejecutar formalmente el plan de pruebas de la Sección~8 con agricultores
+        reales y consignar los resultados.
+  \item Publicar la aplicación en Google Play Store en producción (cuenta en
+        proceso de verificación).
+  \item Implementar el CRUD de recomendaciones y la emisión de alertas manuales
+        desde el panel web administrativo.
+  \item Poblar activamente las colecciones \texttt{clima} y \texttt{alertas} y
+        migrar a notificaciones \textit{push} reales basadas en servidor (Cloud
+        Functions + FCM).
+  \item Incorporar pruebas automatizadas: unitarias sobre la capa \textit{domain}
+        (con \texttt{mocktail}) y de \textit{widget} sobre las vistas críticas.
+  \item Habilitar un modo sin conexión con caché local para el historial y las
+        recomendaciones.
+  \item Migrar la clave de OpenWeather a un mecanismo de \textit{secrets}
+        equivalente al ya aplicado a la clave de Google Maps.
+\end{itemize}
+
+% ============================================================
+%  13. CONCLUSIONES
+% ============================================================
+\section{Conclusiones}
+
+Las conclusiones responden, en el mismo orden, a los ocho objetivos específicos
+planteados en la Sección~3.2.
+
+\begin{enumerate}
+  \item \textbf{(Objetivo 1 --- Arquitectura)} Se diseñó e implementó la
+        aplicación móvil bajo \textbf{Clean Architecture}, con las capas
+        \textit{domain}, \textit{data} y \textit{presentation} y el patrón
+        \textbf{MVVM} con \textbf{Provider}, en las diez \textit{features} del
+        proyecto. La regla de dependencia unidireccional se respetó: la capa
+        \textit{domain} no importa Flutter ni Firebase. El análisis estático
+        (\texttt{flutter analyze}) no reporta advertencias en ninguno de los dos
+        proyectos. Se cumple el primer objetivo específico.
+
+  \item \textbf{(Objetivo 2 --- Modelo de IA)} Se entrenó un modelo por
+        transferencia de aprendizaje sobre \textbf{MobileNetV2} en Google Colab
+        (12 épocas de cabeza + 8 de \textit{fine-tuning}), se exportó a
+        \textbf{TensorFlow Lite} con cuantización \texttt{float16} (4{,}3 MB) y se
+        integró en la aplicación con la normalización coherente con la del
+        entrenamiento. El modelo alcanza un \textbf{83\,\% de exactitud} y un
+        \textbf{83\,\% de \textit{recall} macro} sobre 400 imágenes de
+        validación, e incorpora una clase de rechazo \texttt{no\_hoja} que impide
+        diagnosticar fotografías que no corresponden a una hoja de zapallo. Se
+        cumple el segundo objetivo específico, incluida la condición de rechazo.
+
+  \item \textbf{(Objetivo 3 --- Firebase)} Se integraron \textbf{Firebase
+        Authentication} (correo/contraseña y Google Sign-In), \textbf{Cloud
+        Firestore} (siete colecciones en uso activo, con cuatro índices
+        compuestos) y \textbf{Firebase Storage} (con subida tolerante a fallo y
+        reintentos con \textit{backoff} exponencial). Las reglas de seguridad
+        verifican la propiedad del documento y el privilegio de administrador. Se
+        cumple el tercer objetivo específico.
+
+  \item \textbf{(Objetivo 4 --- Clima)} Se consumió la \textbf{API REST de
+        OpenWeather} para obtener el clima actual y el pronóstico de cinco días a
+        partir de la posición GPS, y se implementó la regla de alerta de riesgo
+        fúngico (humedad $\geq 80\,\%$ y temperatura entre 15 y 25\,°C), que
+        además dispara una notificación local. El clima del momento queda
+        embebido en cada diagnóstico, habilitando el análisis posterior de la
+        correlación entre condiciones ambientales e incidencia. Se cumple el
+        cuarto objetivo específico.
+
+  \item \textbf{(Objetivo 5 --- Hardware móvil)} Se incorporaron la
+        \textbf{cámara en vivo} (paquete \texttt{camera}, sin depender de la
+        aplicación de cámara del sistema), el \textbf{GPS} (\texttt{geolocator})
+        y \textbf{Google Maps} en modo satelital con filtros, marcadores por
+        severidad, navegación táctil a los focos y el contorno poligonal real de
+        cada finca con su área calculada. Se cumple el quinto objetivo
+        específico.
+
+  \item \textbf{(Objetivo 6 --- Panel web)} Se desarrolló el \textbf{panel web
+        administrativo} en Flutter Web como aplicación independiente, con control
+        de acceso mediante la colección \texttt{admins} y cuatro vistas de
+        monitoreo (Resumen, Diagnósticos, Agricultores y Modelo IA), incluyendo
+        la detección automática de focos de propagación por parcela. La
+        funcionalidad administrativa no se expone como un rol dentro de la
+        aplicación móvil, tal como se propuso. Se cumple el sexto objetivo
+        específico.
+
+  \item \textbf{(Objetivo 7 --- Validaciones)} Se implementaron validaciones de
+        cédula ecuatoriana mediante el algoritmo de módulo 10 (incluyendo la
+        verificación del código de provincia y del tercer dígito), de número
+        celular con prefijo 09 y 10 dígitos, de correo, de campos obligatorios,
+        de valores numéricos positivos y de fechas no futuras, aplicadas en todos
+        los formularios de la aplicación. Se cumple el séptimo objetivo
+        específico.
+
+  \item \textbf{(Objetivo 8 --- Pruebas)} Se definió y documentó el plan de
+        pruebas con 30 casos funcionales (CP-01 a CP-30), 7 casos de usabilidad
+        (PU-01 a PU-07) con el instrumento SUS y criterio de aceptación
+        $\geq 68$, y 10 casos de rendimiento (PR-01 a PR-10) con métricas y
+        criterios de aceptación explícitos. El objetivo se cumple en su
+        componente de \textbf{definición}; su \textbf{ejecución formal con
+        usuarios reales queda pendiente} y constituye la primera de las
+        recomendaciones.
+\end{enumerate}
+
+\textbf{Conclusión general.} El proyecto demuestra que es viable poner un
+diagnóstico fitosanitario asistido por inteligencia artificial en manos de un
+agricultor de una zona rural con conectividad limitada: la inferencia ocurre en
+el propio teléfono, en menos de dos segundos y sin necesidad de internet, y el
+contexto de geolocalización y clima transforma un diagnóstico individual en
+información de monitoreo zonal aprovechable por un técnico agrícola. La
+exactitud alcanzada (83\,\%) es adecuada para un \textbf{diagnóstico preliminar}
+que orienta la decisión del agricultor, pero no sustituye el criterio de un
+ingeniero agrónomo, y así se comunica dentro de la aplicación.
+
+% ============================================================
+%  14. RECOMENDACIONES
+% ============================================================
+\section{Recomendaciones}
+\label{sec:recomendaciones}
+
+\begin{enumerate}
+  \item \textbf{Ejecutar el plan de pruebas} definido en la Sección~8 con los
+        seis agricultores del perfil descrito, y ajustar la interfaz según los
+        puntos de fricción que revele el SUS antes de cualquier despliegue
+        masivo.
+  \item \textbf{Ampliar el dataset de \texttt{mancha\_foliar}}, que presenta la
+        precisión más baja (0{,}66) por confusión con mildiú y oídio. Es la
+        intervención con mayor impacto esperado sobre la exactitud global.
+  \item \textbf{Recolectar un dataset propio de ``daño por plaga''} fotografiando
+        hojas afectadas en las fincas del cantón, y reincorporar la clase al
+        modelo. Esto convierte una limitación del dataset público en una ventaja
+        de contexto local.
+  \item \textbf{Reentrenar periódicamente el modelo} con las imágenes reales que
+        los agricultores ya están subiendo a Storage, previa validación de un
+        agrónomo. El sistema, tal como está construido, genera de forma natural el
+        dataset que necesita para mejorar.
+  \item \textbf{Actualizar las métricas del panel web} para reflejar el modelo v2
+        en producción, de modo que el administrador no tome decisiones sobre datos
+        del modelo anterior.
+  \item \textbf{Migrar a notificaciones \textit{push} desde servidor} (Cloud
+        Functions + FCM) poblando las colecciones \texttt{clima} y
+        \texttt{alertas}, para que un agricultor reciba el aviso de riesgo fúngico
+        aunque no haya abierto la aplicación.
+  \item \textbf{Incorporar pruebas automatizadas} sobre la capa \textit{domain},
+        que al no depender de Flutter ni de Firebase es directamente comprobable
+        con \textit{mocks}; es el retorno más alto por esfuerzo invertido en
+        calidad.
+  \item \textbf{Migrar la clave de OpenWeather} al mismo mecanismo de
+        \textit{secrets} ya aplicado a la clave de Google Maps antes de abrir el
+        repositorio al público.
+  \item \textbf{Completar la verificación de la cuenta de Play Console} y publicar
+        la aplicación en producción, dado que la ficha, la política de privacidad
+        y la página de eliminación de cuenta ya están listas.
+  \item \textbf{Añadir un modo sin conexión con caché local}, coherente con la
+        realidad de conectividad del cantón: el diagnóstico ya funciona sin
+        internet, pero el historial y las recomendaciones aún no.
+\end{enumerate}
+
+% ============================================================
+%  REFERENCIAS
+% ============================================================
+\newpage
+\addcontentsline{toc}{section}{Referencias}
+\begin{thebibliography}{99}
+
+\bibitem{pumpkin2024}
+Hasan, M. et al. (2024). \textit{Automated Disease Diagnosis in Pumpkin Plants
+Using Advanced CNN Models}. arXiv:2410.00062.
+Recuperado de \url{https://arxiv.org/html/2410.00062v1}
+
+\bibitem{pumpkinxai2025}
+Rahman, M. et al. (2025). \textit{Explainable AI-Enhanced Deep Learning for
+Pumpkin Leaf Disease Detection: A Comparative Analysis of CNN Architectures}.
+arXiv:2501.05449.
+Recuperado de \url{https://arxiv.org/html/2501.05449v1}
+
+\bibitem{applemobile2024}
+Santoso, D. et al. (2024). \textit{Enhancing Apple Leaf Disease Detection with
+Deep Learning: From Model Training to Android App Integration}. Journal of
+Applied Data Sciences.
+Recuperado de \url{https://bright-journal.org/Journal/index.php/JADS/article/view/507}
+
+\bibitem{maizemobile2023}
+Ahmed, I. et al. (2023). \textit{A Mobile-Based System for Detecting Plant Leaf
+Diseases Using Deep Learning}. MDPI AgriEngineering, 3(3), 32.
+Recuperado de \url{https://www.mdpi.com/2624-7402/3/3/32}
+
+\bibitem{cnn2021transfer}
+Chohan, M. et al. (2021). \textit{Identification of Plant-Leaf Diseases Using CNN
+and Transfer-Learning Approach}. Electronics, MDPI, 10(12), 1388.
+Recuperado de \url{https://www.mdpi.com/2079-9292/10/12/1388}
+
+\bibitem{precisionagro2025}
+Aarif, K. O. et al. (2025). \textit{Smart Sensor Technologies Shaping the Future
+of Precision Agriculture: Recent Advances and Future Outlooks}. Journal of
+Sensors, Wiley.
+Recuperado de \url{https://onlinelibrary.wiley.com/doi/full/10.1155/js/2460098}
+
+\bibitem{kaggledataset}
+tahmidmir. (2023). \textit{Pumpkin Leaf Diseases Dataset From Bangladesh}.
+Kaggle.
+Recuperado de \url{https://www.kaggle.com/datasets/tahmidmir/pumpkin-leaf-diseases-dataset-from-bangladesh}
+
+\bibitem{tflite2024}
+Google LLC. (2024). \textit{LiteRT (TensorFlow Lite) --- On-device machine
+learning}.
+Recuperado de \url{https://ai.google.dev/edge/litert}
+
+\bibitem{mobilenetv2}
+Sandler, M., Howard, A., Zhu, M., Zhmoginov, A. \& Chen, L.-C. (2018).
+\textit{MobileNetV2: Inverted Residuals and Linear Bottlenecks}. IEEE/CVF
+Conference on Computer Vision and Pattern Recognition (CVPR).
+Recuperado de \url{https://arxiv.org/abs/1801.04381}
+
+\bibitem{flutter2024}
+Google LLC. (2024). \textit{Flutter --- Build apps for any screen}.
+Recuperado de \url{https://flutter.dev/docs}
+
+\bibitem{provider2024}
+Rousselet, R. (2024). \textit{Provider --- State management for Flutter}.
+Recuperado de \url{https://pub.dev/packages/provider}
+
+\bibitem{firebase2024}
+Google LLC. (2024). \textit{Cloud Firestore Documentation}.
+Recuperado de \url{https://firebase.google.com/docs/firestore}
+
+\bibitem{openweather2024}
+OpenWeather Ltd. (2024). \textit{OpenWeather API Documentation}.
+Recuperado de \url{https://openweathermap.org/api}
+
+\bibitem{sus1996}
+Brooke, J. (1996). \textit{SUS: A `quick and dirty' usability scale}. En
+\textit{Usability Evaluation in Industry}, Taylor \& Francis, pp. 189--194.
+
+\end{thebibliography}
+
+% ============================================================
+%  ANEXOS
+% ============================================================
+\newpage
+\section*{Anexos}
+\addcontentsline{toc}{section}{Anexos}
+\label{anexo:capturas}
+
+\subsection*{Inventario de capturas requeridas}
+
+Subir a Overleaf una carpeta \texttt{img/} con los siguientes archivos. Las
+rutas en este documento van \textbf{sin extensión}, por lo que funcionan tanto
+con \texttt{.png} como con \texttt{.jpg}.
+
+\begin{longtable}{p{3.9cm} p{9.6cm}}
+\caption{Inventario de capturas para la carpeta \texttt{img/}}
+\label{tab:capturas} \\
+\toprule
+\bfseries Archivo & \bfseries Qué se debe capturar \\
+\midrule
+\endfirsthead
+\toprule
+\bfseries Archivo & \bfseries Qué se debe capturar \\
+\midrule
+\endhead
+\bottomrule
+\endfoot
+
+\texttt{logo} & Logotipo de Sigchos Agrotech (portada). \\
+\multicolumn{2}{l}{\textit{\textbf{Aplicación móvil}}} \\
+\texttt{01-splash} & Pantalla de arranque con el logo. \\
+\texttt{02-login} & Login, con el ícono de mostrar/ocultar contraseña visible. \\
+\texttt{03-registro} & Registro mostrando un error de validación de cédula. \\
+\texttt{04-inicio} & Inicio: saludo, clima, finca activa y últimos diagnósticos. \\
+\texttt{05-permiso-camara} & Diálogo de \textbf{aviso previo} del permiso de cámara. \\
+\texttt{06-captura} & Cámara en vivo con el marco guía sobre una hoja. \\
+\texttt{07-analizando} & Pantalla de análisis (inferencia en curso). \\
+\texttt{08-resultado} & Resultado: anillo de confianza, severidad, top-3 y mini-mapa. \\
+\texttt{09-rechazo-nohoja} & Mensaje de rechazo al fotografiar algo que no es una hoja (CP-12). \\
+\texttt{10-recomendaciones} & Lista de recomendaciones de la enfermedad detectada. \\
+\texttt{11-historial} & Historial con el filtro por enfermedad aplicado. \\
+\texttt{12-mapa} & Mapa satelital con el polígono de la finca y marcadores por severidad. \\
+\texttt{13-clima} & Clima actual con la alerta de riesgo fúngico y el pronóstico. \\
+\texttt{14-fincas} & Listado de fincas del agricultor. \\
+\texttt{15-registrar-finca} & Trazado del polígono de la finca con el área calculada. \\
+\texttt{16-registrar-parcela} & Alta de parcela con GPS. \\
+\texttt{17-registrar-cultivo} & Alta de cultivo (variedad, siembra, etapa). \\
+\texttt{18-perfil} & Perfil del agricultor con foto. \\
+\texttt{19-notificacion} & Notificación local de resultado de diagnóstico. \\
+\multicolumn{2}{l}{\textit{\textbf{Panel web administrativo}}} \\
+\texttt{20-admin-login} & Login del panel (y, si es posible, el mensaje de acceso denegado a una cuenta no admin). \\
+\texttt{21-admin-resumen} & Resumen: KPIs, gráfico diario, distribución y alertas de zona. \\
+\texttt{22-admin-diagnosticos} & Tabla de diagnósticos con un filtro aplicado. \\
+\texttt{23-admin-agricultores} & Listado de agricultores. \\
+\texttt{24-admin-modelo} & Vista Modelo IA con las métricas por clase. \\
+\multicolumn{2}{l}{\textit{\textbf{Evidencia técnica y de pruebas}}} \\
+\texttt{25-flutter-analyze} & Terminal con \texttt{flutter analyze} sin advertencias (ambos proyectos). \\
+\texttt{26-build-apk} & Terminal con la compilación exitosa del APK. \\
+\texttt{27-firestore} & Consola de Firestore mostrando un documento de \texttt{diagnosticos\_hojas}. \\
+\texttt{28-storage} & Consola de Storage con las imágenes subidas. \\
+\texttt{29-colab-entrenamiento} & Celda de Colab con las curvas de entrenamiento. \\
+\texttt{30-matriz-confusion} & Matriz de confusión / \texttt{classification\_report} del modelo. \\
+\texttt{31-playstore} & Play Console con la app en el canal de prueba interna. \\
+\end{longtable}
+
+\newpage
+\subsection*{A. Capturas de la aplicación móvil}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/02-login}
+    \captionof{anexofloat}{Pantalla de Login}
+  \end{minipage}
+  \hspace{0.04\textwidth}
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/03-registro}
+    \captionof{anexofloat}{Registro con validación de cédula}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/04-inicio}
+    \captionof{anexofloat}{Pantalla de Inicio}
+  \end{minipage}
+  \hspace{0.04\textwidth}
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/05-permiso-camara}
+    \captionof{anexofloat}{Aviso previo de permiso de cámara}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/06-captura}
+    \captionof{anexofloat}{Captura de hoja con cámara en vivo}
+  \end{minipage}
+  \hspace{0.04\textwidth}
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/08-resultado}
+    \captionof{anexofloat}{Resultado del diagnóstico}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/09-rechazo-nohoja}
+    \captionof{anexofloat}{Rechazo de imagen que no es hoja (clase \texttt{no\_hoja})}
+  \end{minipage}
+  \hspace{0.04\textwidth}
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/10-recomendaciones}
+    \captionof{anexofloat}{Recomendaciones agrícolas}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/11-historial}
+    \captionof{anexofloat}{Historial de diagnósticos filtrable}
+  \end{minipage}
+  \hspace{0.04\textwidth}
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/12-mapa}
+    \captionof{anexofloat}{Mapa de zonas afectadas con polígono de finca}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/13-clima}
+    \captionof{anexofloat}{Clima y alerta de riesgo fúngico}
+  \end{minipage}
+  \hspace{0.04\textwidth}
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/15-registrar-finca}
+    \captionof{anexofloat}{Trazado del polígono de la finca con área calculada}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/18-perfil}
+    \captionof{anexofloat}{Perfil del agricultor}
+  \end{minipage}
+  \hspace{0.04\textwidth}
+  \begin{minipage}[t]{0.40\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/19-notificacion}
+    \captionof{anexofloat}{Notificación local de resultado}
+  \end{minipage}
+\end{figure}
+
+\newpage
+\subsection*{B. Capturas del panel web administrativo}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.85\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/21-admin-resumen}
+    \captionof{anexofloat}{Panel web administrativo --- Resumen (KPIs, gráficos y alertas de zona)}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.85\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/22-admin-diagnosticos}
+    \captionof{anexofloat}{Panel web administrativo --- Diagnósticos globales filtrables}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/23-admin-agricultores}
+    \captionof{anexofloat}{Panel web --- Agricultores}
+  \end{minipage}
+  \hspace{0.02\textwidth}
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/24-admin-modelo}
+    \captionof{anexofloat}{Panel web --- Modelo IA}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.6\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/20-admin-login}
+    \captionof{anexofloat}{Panel web --- Login restringido a la colección \texttt{admins}}
+  \end{minipage}
+\end{figure}
+
+\newpage
+\subsection*{C. Evidencia de funcionamiento y de pruebas}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/25-flutter-analyze}
+    \captionof{anexofloat}{\texttt{flutter analyze} sin advertencias}
+  \end{minipage}
+  \hspace{0.02\textwidth}
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/26-build-apk}
+    \captionof{anexofloat}{Compilación exitosa del APK}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/27-firestore}
+    \captionof{anexofloat}{Documento de \texttt{diagnosticos\_hojas} en Firestore}
+  \end{minipage}
+  \hspace{0.02\textwidth}
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/28-storage}
+    \captionof{anexofloat}{Imágenes de hojas en Firebase Storage}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/29-colab-entrenamiento}
+    \captionof{anexofloat}{Entrenamiento del modelo en Google Colab}
+  \end{minipage}
+  \hspace{0.02\textwidth}
+  \begin{minipage}[t]{0.48\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/30-matriz-confusion}
+    \captionof{anexofloat}{Matriz de confusión sobre el conjunto de validación}
+  \end{minipage}
+\end{figure}
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}[t]{0.7\textwidth}
+    \centering
+    \includegraphics[width=\linewidth]{img/31-playstore}
+    \captionof{anexofloat}{Aplicación distribuida en el canal de prueba interna de Google Play}
+  \end{minipage}
+\end{figure}
+
+\end{document}
