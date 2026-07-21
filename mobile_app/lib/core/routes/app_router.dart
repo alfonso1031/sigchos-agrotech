@@ -1,5 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../features/auth/presentation/views/editar_perfil_view.dart';
+import '../../features/chat_diagnostico/data/datasources/gemini_chat_datasource.dart';
+import '../../features/chat_diagnostico/data/repositories/chat_repository_impl.dart';
+import '../../features/chat_diagnostico/domain/usecases/enviar_mensaje_chat_usecase.dart';
+import '../../features/chat_diagnostico/domain/usecases/iniciar_chat_usecase.dart';
+import '../../features/chat_diagnostico/presentation/viewmodels/chat_diagnostico_viewmodel.dart';
+import '../../features/chat_diagnostico/presentation/views/chat_diagnostico_view.dart';
 import '../../features/auth/presentation/views/login_view.dart';
 import '../../features/auth/presentation/views/profile_view.dart';
 import '../../features/auth/presentation/views/register_view.dart';
@@ -42,6 +49,20 @@ class AppRouter {
         return _page(
           RecomendacionesView(
             diagnostico: settings.arguments as DiagnosticoEntity,
+          ),
+        );
+      case AppRoutes.chatDiagnostico:
+        final diagnostico = settings.arguments as DiagnosticoEntity;
+        return _page(
+          ChangeNotifierProvider(
+            create: (_) {
+              final repository = ChatRepositoryImpl(GeminiChatDataSource());
+              return ChatDiagnosticoViewModel(
+                iniciarChatUseCase: IniciarChatUseCase(repository),
+                enviarMensajeChatUseCase: EnviarMensajeChatUseCase(repository),
+              );
+            },
+            child: ChatDiagnosticoView(diagnostico: diagnostico),
           ),
         );
       case AppRoutes.historial:

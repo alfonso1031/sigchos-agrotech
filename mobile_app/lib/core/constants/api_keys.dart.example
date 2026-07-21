@@ -5,4 +5,5 @@ class ApiKeys {
   ApiKeys._();
 
   static const String openWeatherApiKey = 'TU_OPENWEATHER_API_KEY_AQUI';
+  static const String geminiApiKey = 'TU_GEMINI_API_KEY_AQUI';
 }

@@ -10,6 +10,7 @@ class AppRoutes {
   static const String analizando = '/analizando';
   static const String diagnostico = '/diagnostico';
   static const String recomendaciones = '/recomendaciones';
+  static const String chatDiagnostico = '/diagnostico/chat';
   static const String historial = '/historial';
   static const String mapa = '/mapa';
   static const String clima = '/clima';

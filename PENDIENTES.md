@@ -21,3 +21,11 @@
   - `mapa_view` pinta el contorno con `polygons:`; el pin queda como respaldo/etiqueta.
   - Compatibilidad: fincas antiguas sin `limite` siguen mostrando solo el pin y área manual.
   - Archivos nuevos: `core/models/geo_punto.dart`, `core/utils/geo_utils.dart`.
+
+## Mapa / Fincas (web admin)
+- [ ] Agregar trazado del polígono de la finca sobre el mapa en web_admin (actualmente solo mobile_app lo dibuja).
+
+## Clima / Modelo IA
+- [ ] Revisar que recomendaciones se den según clima de ubicación (finca).
+- [ ] Entrenar modelo también según clima de ubicación.
+- [ ] Entrenar modelo con más enfermedades comunes de hojas.

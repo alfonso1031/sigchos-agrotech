@@ -347,6 +347,24 @@ class ResultadoDiagnosticoView extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(width: 10),
+                  SizedBox(
+                    width: 54,
+                    height: 54,
+                    child: OutlinedButton(
+                      onPressed: () => Navigator.of(context)
+                          .pushNamed(AppRoutes.chatDiagnostico, arguments: diagnostico),
+                      style: OutlinedButton.styleFrom(
+                        padding: EdgeInsets.zero,
+                        minimumSize: const Size(54, 54),
+                        side: const BorderSide(color: Color(0xFFC9CEC2)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(15)),
+                      ),
+                      child: const Icon(Icons.smart_toy_outlined,
+                          color: AppColors.verdeMedio),
+                    ),
+                  ),
+                  const SizedBox(width: 10),
                   Expanded(
                     child: SizedBox(
                       height: 54,

@@ -48,6 +48,9 @@ dependencies:
   # Red / API REST
   http: ^1.2.2
 
+  # IA generativa (chat sobre el diagnóstico)
+  google_generative_ai: ^0.4.6
+
   # Hardware móvil
   geolocator: ^13.0.2
   google_maps_flutter: ^2.9.0
