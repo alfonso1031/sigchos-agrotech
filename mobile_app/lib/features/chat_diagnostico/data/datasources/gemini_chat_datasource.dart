@@ -4,7 +4,7 @@ import '../../../../core/constants/api_keys.dart';
 /// Cliente de Gemini (https://ai.google.dev) para el chat sobre un diagnóstico.
 /// Mantiene la sesión de chat en memoria mientras la vista esté abierta.
 class GeminiChatDataSource {
-  static const _modelo = 'gemini-2.0-flash';
+  static const _modelo = 'gemini-2.5-flash';
 
   ChatSession? _chat;
 
