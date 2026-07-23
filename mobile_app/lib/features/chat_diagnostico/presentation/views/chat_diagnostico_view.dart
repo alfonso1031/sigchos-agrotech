@@ -119,22 +119,27 @@ class _ChatDiagnosticoViewState extends State<ChatDiagnosticoView> {
               child: Row(
                 children: [
                   Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      minLines: 1,
-                      maxLines: 4,
-                      textInputAction: TextInputAction.send,
-                      onSubmitted: (_) => _enviar(),
-                      decoration: const InputDecoration(
-                        hintText: 'Escribe tu pregunta...',
-                        filled: true,
-                        fillColor: AppColors.inputFill,
-                        border: OutlineInputBorder(
-                          borderSide: BorderSide.none,
-                          borderRadius: BorderRadius.all(Radius.circular(14)),
+                    child: Consumer<ChatDiagnosticoViewModel>(
+                      builder: (context, vm, _) => TextField(
+                        controller: _controller,
+                        enabled: !vm.limiteAlcanzado,
+                        minLines: 1,
+                        maxLines: 4,
+                        textInputAction: TextInputAction.send,
+                        onSubmitted: (_) => _enviar(),
+                        decoration: InputDecoration(
+                          hintText: vm.limiteAlcanzado
+                              ? 'Límite de preguntas alcanzado'
+                              : 'Escribe tu pregunta...',
+                          filled: true,
+                          fillColor: AppColors.inputFill,
+                          border: const OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.all(Radius.circular(14)),
+                          ),
+                          contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 14, vertical: 12),
                         ),
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                       ),
                     ),
                   ),
@@ -144,7 +149,8 @@ class _ChatDiagnosticoViewState extends State<ChatDiagnosticoView> {
                       width: 48,
                       height: 48,
                       child: IconButton.filled(
-                        onPressed: vm.isLoading ? null : _enviar,
+                        onPressed:
+                            (vm.isLoading || vm.limiteAlcanzado) ? null : _enviar,
                         icon: const Icon(Icons.send, size: 20),
                       ),
                     ),

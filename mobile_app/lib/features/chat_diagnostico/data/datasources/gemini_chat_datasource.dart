@@ -13,6 +13,11 @@ class GeminiChatDataSource {
       model: _modelo,
       apiKey: ApiKeys.geminiApiKey,
       systemInstruction: Content.system(contextoSistema),
+      // Respuestas cortas y acotadas: cuidan cuota/costo y calzan en la burbuja de chat.
+      generationConfig: GenerationConfig(
+        maxOutputTokens: 220,
+        temperature: 0.4,
+      ),
     );
     _chat = model.startChat();
   }
@@ -27,6 +32,17 @@ class GeminiChatDataSource {
     if (texto == null || texto.isEmpty) {
       throw Exception('La IA no devolvió respuesta.');
     }
-    return texto;
+    return _sinMarkdown(texto);
+  }
+
+  /// Red de seguridad por si el modelo igual devuelve markdown pese a la
+  /// instrucción del system prompt: quita negrita/cursiva y viñetas.
+  String _sinMarkdown(String texto) {
+    return texto
+        .replaceAll(RegExp(r'\*\*(.*?)\*\*'), r'$1')
+        .replaceAll(RegExp(r'(?<!\w)\*(?!\s)(.*?)(?<!\s)\*(?!\w)'), r'$1')
+        .replaceAll(RegExp(r'^\s*[-*•]\s+', multiLine: true), '')
+        .replaceAll(RegExp(r'^#{1,6}\s+', multiLine: true), '')
+        .trim();
   }
 }
